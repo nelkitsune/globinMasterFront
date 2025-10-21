@@ -2,12 +2,14 @@
 /* Reset mínimo y tipografía base */
 * { box-sizing: border-box; }
 html, body { padding: 0; margin: 0; }
-body {
+  body {
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, sans-serif;
-  background: var(--bg);
+  background: url("/textures/pergamino_fondo.jpg") repeat center center fixed;
+  background-size: cover;
   color: var(--fg);
   line-height: 1.5;
 }
+
 
 /* Paleta inspirada en tu mock */
 :root {

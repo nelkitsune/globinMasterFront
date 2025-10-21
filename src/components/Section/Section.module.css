@@ -5,6 +5,11 @@
   border-bottom: 2px solid var(--olive-900);
 }
 
+.wrap:hover {
+  background: var(--olive-300);  
+    transform: scale(1.001);   
+}
+
 /* fila responsive (texto + imagen) */
 .row {
   display: grid;
@@ -14,7 +19,7 @@
 }
 
 .reverse {
-  direction: rtl;  /* truco simple */
+  direction: rtl;  
 }
 .reverse > * {
   direction: ltr;
