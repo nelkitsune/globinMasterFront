@@ -1,0 +1,42 @@
+.wrap {
+  background: var(--card);
+  padding: 24px 0;
+  border-top: 2px solid var(--olive-900);
+  border-bottom: 2px solid var(--olive-900);
+}
+
+/* fila responsive (texto + imagen) */
+.row {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 24px;
+  align-items: center;
+}
+
+.reverse {
+  direction: rtl;  /* truco simple */
+}
+.reverse > * {
+  direction: ltr;
+}
+
+.textCol { }
+
+.imageCol { display: flex; justify-content: center; }
+
+.photoBox {
+  width: 100%;
+  max-width: 360px;
+  aspect-ratio: 1/1;
+  border: 3px dashed #222;
+  background: #f6f6f6;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 20px;
+}
+
+/* responsive */
+@media (max-width: 900px) {
+  .row { grid-template-columns: 1fr; }
+}
