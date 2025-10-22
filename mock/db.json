@@ -5,12 +5,13 @@
       "nombre": "Ataque Poderoso",
       "code": "POWER_ATTACK",
       "nombreOriginal": "Power Attack",
-      "descripcion": "Sacrificas precisión a cambio de daño adicional.",
-      "beneficio": "Puedes elegir un penalizador de hasta -5 a tus tiradas de ataque cuerpo a cuerpo y agregar el mismo número como bonificador a tus tiradas de daño.",
-      "especial": "Los ataques con armas a dos manos ganan un 50% más del bonificador de daño.",
-      "fuente": "Manual del Jugador",
+      "descripcion": "Puedes llevar a cabo ataques cuerpo a cuerpo excepcionalmente mortíferos, sacrificando precisión a cambio de fuerza. ",
+      "beneficio": "Aceptas un penalizador -1 a todas las tiradas de ataque cuerpo a cuerpo y pruebas de maniobras de combate, a cambio de un bonificador +2 a todas las tiradas de daño cuerpo a cuerpo. Este bonificador se incrementa en la mitad (+50%) si atacas con un arma a dos manos, un arma a una mano usando las dos manos, o un arma natural principal que añade vez y media su modificador por Fuerza a las tiradas de daño. Este bonificador se reduce a la mitad (-50%) si el ataque es con un arma de mano torpe, o un arma natural secundaria. Cuando tu ataque base llega a +4 y cada 4 puntos posteriores, el penalizador se incrementa en -1 y el bonificador al daño se incrementa en +2. Debes escoger el uso de esta dote antes de llevar a cabo la tirada de ataque, y sus efectos duran hasta tu siguiente turno. El bonificador no se aplica a los ataques de toque, o a los efectos que no infligen daño en puntos de golpe",
+      "especial":null,
+      "fuente": "Reglas Básicas pag 119",
       "preRequisitos": [
-        { "tipo": "estadistica", "atributo": "Fuerza", "valor": 13 }
+        { "tipo": "estadistica", "atributo": "Fuerza", "valor": 13 },
+        { "tipo": "estadistica", "atributo": "Ataque Base", "valor": 1 }
       ]
     },
     {

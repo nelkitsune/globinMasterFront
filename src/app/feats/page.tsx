@@ -4,6 +4,7 @@ import React from 'react'
 import { useEffect, useState } from "react";
 import { getFeats, Feat } from "@/api/featsApi";
 import '../globals.css'
+import Link from 'next/link';
 export default function FeatsListPage(){
   const [feats, setFeats] = useState<Feat[]>([]);
   const [loading, setLoading] = useState(true);
@@ -20,6 +21,7 @@ export default function FeatsListPage(){
     <div className="conteiner">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-15">
             {feats.map((feat) => (
+              <Link href={`/feats/${feat.id}`} key={feat.id} >
               <div 
               key={feat.id}
                 className="
@@ -29,6 +31,7 @@ export default function FeatsListPage(){
                 >
                   {feat.nombre}
         </div>
+              </Link>
             ))}
           </div>
     </div>
