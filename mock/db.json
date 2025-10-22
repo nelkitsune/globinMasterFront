@@ -1,0 +1,34 @@
+{
+  "feats": [
+    {
+      "id": 1,
+      "nombre": "Ataque Poderoso",
+      "code": "POWER_ATTACK",
+      "nombreOriginal": "Power Attack",
+      "descripcion": "Sacrificas precisión a cambio de daño adicional.",
+      "beneficio": "Puedes elegir un penalizador de hasta -5 a tus tiradas de ataque cuerpo a cuerpo y agregar el mismo número como bonificador a tus tiradas de daño.",
+      "especial": "Los ataques con armas a dos manos ganan un 50% más del bonificador de daño.",
+      "fuente": "Manual del Jugador",
+      "preRequisitos": [
+        { "tipo": "estadistica", "atributo": "Fuerza", "valor": 13 }
+      ]
+    },
+    {
+      "id": 2,
+      "nombre": "Combate con Dos Armas",
+      "code": "TWO_WEAPON_FIGHTING",
+      "nombreOriginal": "Two-Weapon Fighting",
+      "descripcion": "Puedes luchar hábilmente con dos armas, una en cada mano.",
+      "beneficio": "Tu penalizador a las tiradas de ataque con ambas armas se reduce en 2.",
+      "especial": "Un personaje con esta dote puede hacer más ataques a medida que gana niveles.",
+      "fuente": "Manual del Jugador",
+      "preRequisitos": [
+        {
+          "tipo": "estadistica",
+          "atributo": "Destreza",
+          "valor": 15
+        }
+      ]
+    }
+  ]
+}

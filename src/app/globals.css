@@ -1,49 +1,213 @@
+/* === Tailwind ===
+   - v4: usa @import "tailwindcss"
+   - v3: (alternativa) usa @tailwind base; @tailwind components; @tailwind utilities;
+*/
 @import "tailwindcss";
-/* Reset mínimo y tipografía base */
-* { box-sizing: border-box; }
-html, body { padding: 0; margin: 0; }
-  body {
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, sans-serif;
-  background: url("/textures/pergamino_fondo.jpg") repeat center center fixed;
-  background-size: cover;
-  color: var(--fg);
-  line-height: 1.5;
-}
 
-
-/* Paleta inspirada en tu mock */
+/* ===================== */
+/*      THEME TOKENS     */
+/* ===================== */
 :root {
-  --olive-900: #4a5c0f;  /* más oscuro */
+  /* Paleta inspirada en tu mock */
+  --olive-900: #4a5c0f;
   --olive-700: #738a18;
   --olive-500: #94a335;
   --olive-300: #c2cd6a;
-  --olive-100: #dfe6a9;  /* más claro */
+  --olive-100: #dfe6a9;
 
-  --bg: #2b2b2b;         /* borde/“marco” oscuro (como en la imagen) */
-  --page: #b1c255;       /* fondo principal oliva */
-  --card: #cbd77a;       /* bloques más claros */
-  --fg: #111;            /* texto principal */
+  --bg:   #2b2b2b;  /* marco oscuro */
+  --page: #b1c255;  /* fondo principal */
+  --card: #cbd77a;  /* bloques claros */
+  --fg:   #111;     /* texto */
 }
 
-/* Contenedor centrado */
-.container {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 24px;
+/* ===================== */
+/*        BASE           */
+/* ===================== */
+@layer base {
+  /* Deja el preflight de Tailwind manejar reset;
+     solo añadimos lo mínimo que NO rompe utilidades */
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html, body { height: 100%; }
+
+  body {
+    /* Tipografía base consistente */
+    @apply antialiased;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, sans-serif;
+
+    /* Fondo “pergamino” */
+    background-image: url("/textures/pergamino_fondo.jpg");
+    background-repeat: repeat;
+    background-position: center;
+    background-attachment: fixed;
+    background-size: cover;
+
+    /* Color de texto via variable */
+    color: var(--fg);
+    line-height: 1.5;
+    min-height: 100%;
+  }
+
+  /* Titulares y texto por defecto */
+  h1, h2, h3, h4 { @apply font-extrabold tracking-tight; }
+  h1 { @apply text-3xl; }
+  h2 { @apply text-2xl; }
+  h3 { @apply text-xl; }
 }
 
-/* Título estilo “GoblinMaster” */
-.brand {
-  font-weight: 800;
-  font-size: 32px;
-  text-align: center;
-  letter-spacing: 1px;
+/* ===================== */
+/*     COMPONENTS        */
+/* ===================== */
+@layer components {
+  /* Contenedor centrado reutilizable */
+  .container {
+    @apply max-w-[1100px] mx-auto p-6;
+  }
+
+  /* Marca / título “GoblinMaster” */
+  .brand {
+    @apply font-extrabold text-2xl text-center tracking-wide;
+  }
+
+  /* Utilidades “semánticas” */
+  .muted { @apply opacity-85; }
+  .sectionTitle { @apply text-lg font-bold mb-3; }
+
+  /* ===================== */
+  /*        BOTONES        */
+  /* ===================== */
+
+  /* Base */
+  .btn {
+    /* Layout */
+    @apply inline-flex items-center justify-center gap-2;
+
+    /* Dimensiones y tipografía */
+    @apply h-10 px-4 py-2 text-sm font-semibold;
+
+    /* Bordes y fondo */
+    @apply rounded-2xl border border-transparent;
+
+    /* Interacción */
+    @apply transition-colors duration-200 ease-out;
+
+    /* Focus-visible accesible */
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
+
+    /* Evitar selección accidental */
+    user-select: none;
+  }
+
+  /* Estados comunes */
+  .btn:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
+  /* Tamaños */
+  .btn-sm { @apply h-8 px-3 text-xs; }
+  .btn-lg { @apply h-12 px-6 text-base; }
+  .btn-icon { @apply h-10 w-10 p-0; }
+
+  /* Variant: Primary (verde oliva) */
+  .btn-primary {
+    background: var(--olive-700);
+    color: white;
+  }
+  .btn-primary:hover   { background: var(--olive-900); }
+  .btn-primary:active  { background: #3a470c; } /* un pelo más oscuro */
+  .btn-primary:focus-visible {
+    /* ring con tono oliva, contraste ok sobre fondo “page” */
+    box-shadow:
+      0 0 0 2px white,
+      0 0 0 4px var(--olive-500);
+  }
+
+  /* Variant: Secondary (card) */
+  .btn-secondary {
+    background: var(--card);
+    color: #222;
+    border-color: color-mix(in srgb, var(--fg) 10%, transparent);
+    @apply border;
+  }
+  .btn-secondary:hover  { filter: brightness(0.97); }
+  .btn-secondary:active { filter: brightness(0.94); }
+  .btn-secondary:focus-visible {
+    box-shadow:
+      0 0 0 2px white,
+      0 0 0 4px var(--olive-300);
+  }
+
+  /* Variant: Outline (borde oliva) */
+  .btn-outline {
+    @apply bg-transparent;
+    color: var(--olive-900);
+    border-color: var(--olive-700);
+    @apply border;
+  }
+  .btn-outline:hover   { background: color-mix(in srgb, var(--olive-100) 35%, transparent); }
+  .btn-outline:active  { background: color-mix(in srgb, var(--olive-100) 50%, transparent); }
+  .btn-outline:focus-visible {
+    box-shadow:
+      0 0 0 2px white,
+      0 0 0 4px var(--olive-500);
+  }
+
+  /* Variant: Ghost (texto + hover suave) */
+  .btn-ghost {
+    @apply bg-transparent border-transparent;
+    color: var(--fg);
+  }
+  .btn-ghost:hover  { background: color-mix(in srgb, var(--page) 25%, transparent); }
+  .btn-ghost:active { background: color-mix(in srgb, var(--page) 40%, transparent); }
+
+  /* Variant: Destructive (rojo accesible) */
+  .btn-danger {
+    @apply text-white;
+    background: #dc2626; /* red-600 */
+  }
+  .btn-danger:hover  { background: #b91c1c; } /* red-700 */
+  .btn-danger:active { background: #991b1b; } /* red-800 */
+  .btn-danger:focus-visible {
+    box-shadow:
+      0 0 0 2px white,
+      0 0 0 4px #f87171; /* red-400 */
+  }
+
+  /* Estados de carga (spinner simple) */
+  .btn-loading {
+    @apply relative pointer-events-none;
+  }
+  .btn-loading::after {
+    content: "";
+    @apply inline-block align-[-0.125em] ml-2 h-4 w-4 rounded-full border-2;
+    border-top-color: transparent;
+    border-right-color: currentColor;
+    border-bottom-color: currentColor;
+    border-left-color: currentColor;
+    animation: spin 0.6s linear infinite;
+  }
+
+  /* Espaciado con íconos (ej: lucide-react) */
+  .btn > svg,
+  .btn .icon {
+    @apply inline-block h-5 w-5 shrink-0;
+  }
 }
 
-/* Utilidades */
-.muted { opacity: .85; }
-.sectionTitle {
-  font-size: 20px;
-  font-weight: 700;
-  margin: 0 0 12px;
+/* ===================== */
+/*      UTILITIES        */
+/* ===================== */
+@layer utilities {
+  /* Si querés una utilidad “page” para secciones */
+  .page-bg {
+    background: var(--page);
+  }
+}
+
+/* ===================== */
+/*     KEYFRAMES         */
+/* ===================== */
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }

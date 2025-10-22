@@ -1,0 +1,9 @@
+{
+  "/api/*": "/$1",
+
+  "/api/feats": "/feats",
+  "/api/feats/:id": "/feats/:id",
+
+  "/api/feats/by-code/:code": "/feats?code=:code",
+  "/api/feats/search/:q": "/feats?q=:q"
+}
