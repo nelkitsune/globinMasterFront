@@ -9,7 +9,7 @@ export default function HomePage() {
         <h1 className={styles.heroTitle}>¡Bienvenido!</h1>
       </div>
 
-      <Section title="Gestor De Iniciativa" imageSide="right">
+      <Section title="Gestor De Iniciativa" imageSide="right" href="/gestorDeIniciativa">
         <p>
           Organiza y controla los turnos de combate de forma rápida. Registra iniciativa, aplica modificadores, 
           y resuelve empates automáticamente. Guarda encuentros para reusarlos en futuras sesiones.
