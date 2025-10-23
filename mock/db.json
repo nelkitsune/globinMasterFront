@@ -19,8 +19,8 @@
       "nombre": "Combate con Dos Armas",
       "code": "TWO_WEAPON_FIGHTING",
       "nombreOriginal": "Two-Weapon Fighting",
-      "descripcion": "Puedes luchar hábilmente con dos armas, una en cada mano.",
-      "beneficio": "Tu penalizador a las tiradas de ataque con ambas armas se reduce en 2.",
+      "descripcion": "Puedes luchar con un arma en cada una de tus manos, y llevar a cabo un ataque adicional cada asalto con el arma secundaria. ",
+      "beneficio": "tus penalizadores a las tiradas de ataque para luchar con dos armas se reducen. El penalizador para tu mano principal se reduce en 2, y el de tu mano torpe, en 6. Consulta ‘Combate con dos armas’ en el Capítulo 8. ",
       "especial": "Un personaje con esta dote puede hacer más ataques a medida que gana niveles.",
       "fuente": "Manual del Jugador",
       "preRequisitos": [
@@ -28,6 +28,33 @@
           "tipo": "estadistica",
           "atributo": "Destreza",
           "valor": 15
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "nombre": "Ira Centrada",
+      "code": "IRA_CENTRADA",
+      "nombreOriginal": "Ira centrada",
+      "descripcion": "Incluso en medio de golpes fieros y furiosos, puedes centrarte en mitad de la masacre, y tus aparentemente salvajes ataques aciertan con precisión. ",
+      "beneficio": "cuando empuñas un arma a dos manos o un arma a una mano con ambas manos y usas la dote Ataque poderoso, no sufres el penalizador por Ataque poderoso a las tiradas de ataque en el primer ataque que llevas a cabo en cada turno. Sigues sufriendo el penalizador en cualquier ataque adicional, incluyendo ataques de oportunidad. ",
+      "especial": null,
+      "fuente": "Guía del jugador avanzada pág. 164",
+      "preRequisitos": [
+        {
+          "tipo": "estadistica",
+          "atributo": "Fuerza",
+          "valor": 13
+        },
+        {
+          "tipo": "dote",
+          "nombre": "Ataque Poderoso",
+          "href": "/feats/1"
+        },
+        {
+          "tipo": "estadistica",
+          "atributo": "Ataque Base",
+          "valor": 1
         }
       ]
     }

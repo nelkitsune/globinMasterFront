@@ -37,7 +37,8 @@ export default async function FeatDetailPage(props: { params: Promise<{ id: stri
   return (
     <main className="mx-auto max-w-3xxl p-6 space-y-4">
       <a href="/feats" className="text-sm underline opacity-80">← Volver</a>
-      <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
+      <div className="grid gap-6 items-start 
+            grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)]">
         <div>
             <header>
                 <h1 className="text-3xl font-bold">{feat.nombre}</h1>
@@ -73,7 +74,7 @@ export default async function FeatDetailPage(props: { params: Promise<{ id: stri
                 )}
             </section>
         </div>
-        <CardDatosDote
+        <CardDatosDote className="self-start"
             nombre={feat.nombre}
             code={feat.code}
             nombreOriginal={feat.nombreOriginal}
