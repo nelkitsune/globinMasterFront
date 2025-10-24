@@ -18,7 +18,7 @@ export default function FeatsListPage(){
    if (loading) return <p className="p-4">Cargando...</p>;
   return (
     <>
-    <div className="conteiner">
+    <div className="container">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-15">
             {feats.map((feat) => (
               <Link href={`/feats/${feat.id}`} key={feat.id} >

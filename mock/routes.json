@@ -5,5 +5,8 @@
   "/api/feats/:id": "/feats/:id",
 
   "/api/feats/by-code/:code": "/feats?code=:code",
-  "/api/feats/search/:q": "/feats?q=:q"
+  "/api/feats/search/:q": "/feats?q=:q",
+
+  "/api/spells": "/spells",
+  "/api/spells/:id": "/spells/:id"
 }

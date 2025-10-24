@@ -38,7 +38,7 @@ export default function HomePage() {
           Compatible con reglas personalizadas y variantes caseras.
         </p>
       </Section>
-      <Section title="Magia" imageSide="left">
+      <Section title="Magia" imageSide="left" href="/spells">
         <p>
           Accede a un compendio completo de conjuros organizados por escuela, nivel y clase lanzadora. 
           Busca efectos específicos y guarda tus favoritos.

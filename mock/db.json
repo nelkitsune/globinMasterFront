@@ -58,5 +58,97 @@
         }
       ]
     }
+  ],
+  "spells": [
+    {
+      "id": 1,
+      "nombre": "Misil Mágico",
+      "originalName": "Magic Missile",
+      "cstingTime": "1 acción",
+      "range": "25 metros + 5 metros/nivel",
+      "areaOfEffect": "Uno o varios objetivos",
+      "duration": "Instantánea",
+      "savingThrow": "Ninguno",
+      "spellResistance": "No aplica",
+      "componentsVerbal": true,
+      "componentsSomatic": true,
+      "componentsMaterial": false,
+      "description": "Creas uno o más misiles mágicos que golpean automáticamente a sus objetivos, causando daño de fuerza.",
+      "source": "Manual del Jugador"
+    },
+    {
+      "id": 2,
+      "nombre": "Bola de Fuego",
+      "originalName": "Fireball",
+      "cstingTime": "1 acción",
+      "range": "200 metros",
+      "areaOfEffect": "Esfera de 6 metros de radio",
+      "duration": "Instantánea",
+      "savingThrow": "Reflejos (media)",
+      "spellResistance": "Sí",
+      "componentsVerbal": true,
+      "componentsSomatic": true,
+      "componentsMaterial": true,
+      "materialComponents": "Una pequeña bola de guano de murciélago y azufre",
+      "description": "Una explosión de fuego inflige 1d6 puntos de daño por nivel (máx. 10d6) a todas las criaturas en el área.",
+      "source": "Manual del Jugador"
+    }
+  ],
+  "spellClasses": [
+    { "id": 1, "nombre": "Mago", "code": "WIZARD" },
+    { "id": 2, "nombre": "Clérigo", "code": "CLERIC" },
+    { "id": 3, "nombre": "Hechicero", "code": "SORCERER" }
+  ],
+  "spellLevels": [
+    {
+      "spellClassLevelId": 1,
+      "spellClass": { "id": 1, "nombre": "Mago", "code": "WIZARD" },
+      "level": 1,
+      "spell": {
+        "id": 1,
+        "nombre": "Misil Mágico",
+        "originalName": "Magic Missile",
+        "cstingTime": "1 acción",
+        "range": "25 metros + 5 metros/nivel",
+        "duration": "Instantánea",
+        "componentsVerbal": true,
+        "componentsSomatic": true,
+        "componentsMaterial": false,
+        "description": "Creas uno o más misiles mágicos que golpean automáticamente a sus objetivos, causando daño de fuerza.",
+        "source": "Manual del Jugador"
+      }
+    },
+    {
+      "spellClassLevelId": 2,
+      "spellClass": { "id": 1, "nombre": "Mago", "code": "WIZARD" },
+      "level": 3,
+      "spell": {
+        "id": 2,
+        "nombre": "Bola de Fuego",
+        "originalName": "Fireball",
+        "cstingTime": "1 acción",
+        "range": "200 metros",
+        "areaOfEffect": "Esfera de 6 metros de radio",
+        "duration": "Instantánea",
+        "savingThrow": "Reflejos (media)",
+        "spellResistance": "Sí",
+        "componentsVerbal": true,
+        "componentsSomatic": true,
+        "componentsMaterial": true,
+        "materialComponents": "Una pequeña bola de guano de murciélago y azufre",
+        "description": "Una explosión de fuego inflige 1d6 puntos de daño por nivel (máx. 10d6) a todas las criaturas en el área.",
+        "source": "Manual del Jugador"
+      }
+    }
+  ],
+  "spellClassLevelIds": [
+    { "spellId": 1, "ClassId": 1 },
+    { "spellId": 2, "ClassId": 1 }
+  ],
+  "spellSchools": [
+    { "id": 1, "nombre": "Evocación", "code": "EVOCATION" },
+    { "id": 2, "nombre": "Conjuración", "code": "CONJURATION" }
+  ]
+}
   ]
 }
