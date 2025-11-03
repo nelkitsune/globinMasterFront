@@ -4,14 +4,13 @@ import styles from "@/app/styles/Home.module.css";
 export default function HomePage() {
   return (
     <div className={styles.home}>
-      {/* Título central grande, similar al mock */}
       <div className={styles.hero}>
         <h1 className={styles.heroTitle}>¡Bienvenido!</h1>
       </div>
 
       <Section title="Gestor De Iniciativa" imageSide="right" href="/gestorDeIniciativa">
         <p>
-          Organiza y controla los turnos de combate de forma rápida. Registra iniciativa, aplica modificadores, 
+          Organiza y controla los turnos de combate de forma rápida. Registra iniciativa, aplica modificadores,
           y resuelve empates automáticamente. Guarda encuentros para reusarlos en futuras sesiones.
         </p>
         <p>
@@ -21,7 +20,7 @@ export default function HomePage() {
 
       <Section title="Mis Personajes" imageSide="left">
         <p>
-          Administra tus personajes jugadores: atributos, dotes, inventario, rasgos raciales y más. 
+          Administra tus personajes jugadores: atributos, dotes, inventario, rasgos raciales y más.
           Sincroniza con tu cuenta para acceder desde cualquier dispositivo.
         </p>
         <p>
@@ -31,7 +30,7 @@ export default function HomePage() {
 
       <Section title="Bestiarios" imageSide="right">
         <p>
-          Consulta criaturas por CR, tipo, tamaño, alineamiento, ataques especiales y plantillas. 
+          Consulta criaturas por CR, tipo, tamaño, alineamiento, ataques especiales y plantillas.
           Filtros avanzados para armar encuentros balanceados en segundos.
         </p>
         <p>
@@ -40,7 +39,7 @@ export default function HomePage() {
       </Section>
       <Section title="Magia" imageSide="left" href="/spells">
         <p>
-          Accede a un compendio completo de conjuros organizados por escuela, nivel y clase lanzadora. 
+          Accede a un compendio completo de conjuros organizados por escuela, nivel y clase lanzadora.
           Busca efectos específicos y guarda tus favoritos.
         </p>
         <p>

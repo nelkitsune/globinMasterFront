@@ -15,21 +15,33 @@
   --olive-300: #c2cd6a;
   --olive-100: #dfe6a9;
 
-  --bg:   #2b2b2b;  /* marco oscuro */
-  --page: #b1c255;  /* fondo principal */
-  --card: #cbd77a;  /* bloques claros */
-  --fg:   #111;     /* texto */
+  --bg: #2b2b2b;
+  /* marco oscuro */
+  --page: #b1c255;
+  /* fondo principal */
+  --card: #cbd77a;
+  /* bloques claros */
+  --fg: #111;
+  /* texto */
 }
 
 /* ===================== */
 /*        BASE           */
 /* ===================== */
 @layer base {
+
   /* Deja el preflight de Tailwind manejar reset;
      solo añadimos lo mínimo que NO rompe utilidades */
-  *, *::before, *::after { box-sizing: border-box; }
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
 
-  html, body { height: 100%; }
+  html,
+  body {
+    height: 100%;
+  }
 
   body {
     /* Tipografía base consistente */
@@ -50,16 +62,31 @@
   }
 
   /* Titulares y texto por defecto */
-  h1, h2, h3, h4 { @apply font-extrabold tracking-tight; }
-  h1 { @apply text-3xl; }
-  h2 { @apply text-2xl; }
-  h3 { @apply text-xl; }
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-extrabold tracking-tight;
+  }
+
+  h1 {
+    @apply text-3xl;
+  }
+
+  h2 {
+    @apply text-2xl;
+  }
+
+  h3 {
+    @apply text-xl;
+  }
 }
 
 /* ===================== */
 /*     COMPONENTS        */
 /* ===================== */
 @layer components {
+
   /* Contenedor centrado reutilizable */
   .container {
     @apply max-w-[1100px] mx-auto p-6;
@@ -71,8 +98,13 @@
   }
 
   /* Utilidades “semánticas” */
-  .muted { @apply opacity-85; }
-  .sectionTitle { @apply text-lg font-bold mb-3; }
+  .muted {
+    @apply opacity-85;
+  }
+
+  .sectionTitle {
+    @apply text-lg font-bold mb-3;
+  }
 
   /* ===================== */
   /*        BOTONES        */
@@ -105,17 +137,33 @@
   }
 
   /* Tamaños */
-  .btn-sm { @apply h-8 px-3 text-xs; }
-  .btn-lg { @apply h-12 px-6 text-base; }
-  .btn-icon { @apply h-10 w-10 p-0; }
+  .btn-sm {
+    @apply h-8 px-3 text-xs;
+  }
+
+  .btn-lg {
+    @apply h-12 px-6 text-base;
+  }
+
+  .btn-icon {
+    @apply h-10 w-10 p-0;
+  }
 
   /* Variant: Primary (verde oliva) */
   .btn-primary {
     background: var(--olive-700);
     color: white;
   }
-  .btn-primary:hover   { background: var(--olive-900); }
-  .btn-primary:active  { background: #3a470c; } /* un pelo más oscuro */
+
+  .btn-primary:hover {
+    background: var(--olive-900);
+  }
+
+  .btn-primary:active {
+    background: #3a470c;
+  }
+
+  /* un pelo más oscuro */
   .btn-primary:focus-visible {
     /* ring con tono oliva, contraste ok sobre fondo “page” */
     box-shadow:
@@ -130,8 +178,15 @@
     border-color: color-mix(in srgb, var(--fg) 10%, transparent);
     @apply border;
   }
-  .btn-secondary:hover  { filter: brightness(0.97); }
-  .btn-secondary:active { filter: brightness(0.94); }
+
+  .btn-secondary:hover {
+    filter: brightness(0.97);
+  }
+
+  .btn-secondary:active {
+    filter: brightness(0.94);
+  }
+
   .btn-secondary:focus-visible {
     box-shadow:
       0 0 0 2px white,
@@ -145,8 +200,15 @@
     border-color: var(--olive-700);
     @apply border;
   }
-  .btn-outline:hover   { background: color-mix(in srgb, var(--olive-100) 35%, transparent); }
-  .btn-outline:active  { background: color-mix(in srgb, var(--olive-100) 50%, transparent); }
+
+  .btn-outline:hover {
+    background: color-mix(in srgb, var(--olive-100) 35%, transparent);
+  }
+
+  .btn-outline:active {
+    background: color-mix(in srgb, var(--olive-100) 50%, transparent);
+  }
+
   .btn-outline:focus-visible {
     box-shadow:
       0 0 0 2px white,
@@ -158,26 +220,44 @@
     @apply bg-transparent border-transparent;
     color: var(--fg);
   }
-  .btn-ghost:hover  { background: color-mix(in srgb, var(--page) 25%, transparent); }
-  .btn-ghost:active { background: color-mix(in srgb, var(--page) 40%, transparent); }
+
+  .btn-ghost:hover {
+    background: color-mix(in srgb, var(--page) 25%, transparent);
+  }
+
+  .btn-ghost:active {
+    background: color-mix(in srgb, var(--page) 40%, transparent);
+  }
 
   /* Variant: Destructive (rojo accesible) */
   .btn-danger {
     @apply text-white;
-    background: #dc2626; /* red-600 */
+    background: #dc2626;
+    /* red-600 */
   }
-  .btn-danger:hover  { background: #b91c1c; } /* red-700 */
-  .btn-danger:active { background: #991b1b; } /* red-800 */
+
+  .btn-danger:hover {
+    background: #b91c1c;
+  }
+
+  /* red-700 */
+  .btn-danger:active {
+    background: #991b1b;
+  }
+
+  /* red-800 */
   .btn-danger:focus-visible {
     box-shadow:
       0 0 0 2px white,
-      0 0 0 4px #f87171; /* red-400 */
+      0 0 0 4px #f87171;
+    /* red-400 */
   }
 
   /* Estados de carga (spinner simple) */
   .btn-loading {
     @apply relative pointer-events-none;
   }
+
   .btn-loading::after {
     content: "";
     @apply inline-block align-[-0.125em] ml-2 h-4 w-4 rounded-full border-2;
@@ -189,9 +269,67 @@
   }
 
   /* Espaciado con íconos (ej: lucide-react) */
-  .btn > svg,
+  .btn>svg,
   .btn .icon {
     @apply inline-block h-5 w-5 shrink-0;
+  }
+
+  /* ===================== */
+  /*        MODALS         */
+  /* ===================== */
+  /* Overlay que cubre la pantalla */
+  .modal-overlay {
+    @apply fixed inset-0 bg-black/50 flex items-center justify-center z-50;
+  }
+
+  /* Caja del modal */
+  .modal {
+    @apply bg-white rounded-lg p-6 w-full max-w-md shadow-lg relative;
+    background-color: var(--olive-300);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Botón de cerrar (esquina) */
+  .modal-close {
+    @apply absolute top-3 right-3 text-2xl leading-none bg-transparent border-0 cursor-pointer;
+  }
+
+  /* Pestañas / encabezado del modal */
+  .modal-tabs {
+    @apply flex gap-2 mb-4;
+  }
+
+  .modal-tab {
+    @apply flex-1 py-2 rounded bg-gray-100 text-sm text-center cursor-pointer;
+  }
+
+  .modal-tab-active {
+    @apply bg-[var(--olive-700)] text-white font-semibold;
+  }
+
+  /* Formulario interno */
+  .modal-form {
+    @apply flex flex-col gap-3;
+  }
+
+  .modal-field {
+    @apply flex flex-col gap-1 text-sm;
+  }
+
+  .modal-input {
+    @apply w-full p-2 border border-gray-300 rounded bg-white;
+  }
+
+  /* Acciones / botones del modal */
+  .modal-actions {
+    @apply flex justify-end gap-2 mt-2;
+  }
+
+  /* Ajustes por pantallas */
+  @screen sm {
+    .modal {
+      @apply max-w-lg;
+    }
   }
 }
 
@@ -199,6 +337,7 @@
 /*      UTILITIES        */
 /* ===================== */
 @layer utilities {
+
   /* Si querés una utilidad “page” para secciones */
   .page-bg {
     background: var(--page);
@@ -209,5 +348,7 @@
 /*     KEYFRAMES         */
 /* ===================== */
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
