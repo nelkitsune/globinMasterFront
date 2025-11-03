@@ -6,11 +6,10 @@
 }
 
 .wrap:hover {
-  background: var(--olive-300);  
-    transform: scale(1.001);   
+  background: var(--olive-300);
+  transform: scale(1.001);
 }
 
-/* fila responsive (texto + imagen) */
 .row {
   display: grid;
   grid-template-columns: 1.5fr 1fr;
@@ -19,15 +18,19 @@
 }
 
 .reverse {
-  direction: rtl;  
+  direction: rtl;
 }
-.reverse > * {
+
+.reverse>* {
   direction: ltr;
 }
 
-.textCol { }
+.textCol {}
 
-.imageCol { display: flex; justify-content: center; }
+.imageCol {
+  display: flex;
+  justify-content: center;
+}
 
 .photoBox {
   width: 100%;
@@ -43,5 +46,7 @@
 
 /* responsive */
 @media (max-width: 900px) {
-  .row { grid-template-columns: 1fr; }
+  .row {
+    grid-template-columns: 1fr;
+  }
 }

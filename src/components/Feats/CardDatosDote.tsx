@@ -70,7 +70,6 @@ export default function CardDatosDote({
                 "bg-[color:var(--olive-100)]/60 px-2 py-0.5 text-xs whitespace-nowrap " +
                 "transition hover:scale-105";
 
-              // Si tiene href → enlace clickeable
               return (
                 <li key={i}>
                   {p.href ? (

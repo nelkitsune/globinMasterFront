@@ -20,7 +20,6 @@ export default function Section({ title, children, imageSide = "right", href }: 
             </div>
 
             <div className={styles.imageCol}>
-              {/* “FOTO” como placeholder, podés reemplazar por next/image cuando tengas assets */}
               <div className={styles.photoBox}>
                 <span>FOTO</span>
               </div>

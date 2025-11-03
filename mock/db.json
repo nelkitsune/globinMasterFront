@@ -7,11 +7,19 @@
       "nombreOriginal": "Power Attack",
       "descripcion": "Puedes llevar a cabo ataques cuerpo a cuerpo excepcionalmente mortíferos, sacrificando precisión a cambio de fuerza. ",
       "beneficio": "Aceptas un penalizador -1 a todas las tiradas de ataque cuerpo a cuerpo y pruebas de maniobras de combate, a cambio de un bonificador +2 a todas las tiradas de daño cuerpo a cuerpo. Este bonificador se incrementa en la mitad (+50%) si atacas con un arma a dos manos, un arma a una mano usando las dos manos, o un arma natural principal que añade vez y media su modificador por Fuerza a las tiradas de daño. Este bonificador se reduce a la mitad (-50%) si el ataque es con un arma de mano torpe, o un arma natural secundaria. Cuando tu ataque base llega a +4 y cada 4 puntos posteriores, el penalizador se incrementa en -1 y el bonificador al daño se incrementa en +2. Debes escoger el uso de esta dote antes de llevar a cabo la tirada de ataque, y sus efectos duran hasta tu siguiente turno. El bonificador no se aplica a los ataques de toque, o a los efectos que no infligen daño en puntos de golpe",
-      "especial":null,
+      "especial": null,
       "fuente": "Reglas Básicas pag 119",
       "preRequisitos": [
-        { "tipo": "estadistica", "atributo": "Fuerza", "valor": 13 },
-        { "tipo": "estadistica", "atributo": "Ataque Base", "valor": 1 }
+        {
+          "tipo": "estadistica",
+          "atributo": "Fuerza",
+          "valor": 13
+        },
+        {
+          "tipo": "estadistica",
+          "atributo": "Ataque Base",
+          "valor": 1
+        }
       ]
     },
     {
@@ -95,14 +103,30 @@
     }
   ],
   "spellClasses": [
-    { "id": 1, "nombre": "Mago", "code": "WIZARD" },
-    { "id": 2, "nombre": "Clérigo", "code": "CLERIC" },
-    { "id": 3, "nombre": "Hechicero", "code": "SORCERER" }
+    {
+      "id": 1,
+      "nombre": "Mago",
+      "code": "WIZARD"
+    },
+    {
+      "id": 2,
+      "nombre": "Clérigo",
+      "code": "CLERIC"
+    },
+    {
+      "id": 3,
+      "nombre": "Hechicero",
+      "code": "SORCERER"
+    }
   ],
   "spellLevels": [
     {
       "spellClassLevelId": 1,
-      "spellClass": { "id": 1, "nombre": "Mago", "code": "WIZARD" },
+      "spellClass": {
+        "id": 1,
+        "nombre": "Mago",
+        "code": "WIZARD"
+      },
       "level": 1,
       "spell": {
         "id": 1,
@@ -120,7 +144,11 @@
     },
     {
       "spellClassLevelId": 2,
-      "spellClass": { "id": 1, "nombre": "Mago", "code": "WIZARD" },
+      "spellClass": {
+        "id": 1,
+        "nombre": "Mago",
+        "code": "WIZARD"
+      },
       "level": 3,
       "spell": {
         "id": 2,
@@ -142,13 +170,25 @@
     }
   ],
   "spellClassLevelIds": [
-    { "spellId": 1, "ClassId": 1 },
-    { "spellId": 2, "ClassId": 1 }
+    {
+      "spellId": 1,
+      "ClassId": 1
+    },
+    {
+      "spellId": 2,
+      "ClassId": 1
+    }
   ],
   "spellSchools": [
-    { "id": 1, "nombre": "Evocación", "code": "EVOCATION" },
-    { "id": 2, "nombre": "Conjuración", "code": "CONJURATION" }
-  ]
-}
+    {
+      "id": 1,
+      "nombre": "Evocación",
+      "code": "EVOCATION"
+    },
+    {
+      "id": 2,
+      "nombre": "Conjuración",
+      "code": "CONJURATION"
+    }
   ]
 }
