@@ -27,18 +27,12 @@ export default function SpellListPage() {
         <h1 className="text-4xl font-bold mb-4 p-4 text-center">Lista de clases lanzadoras de conjuros</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-15">
           {spellClasses.map((spellClass) => (
-            <Link href={`/spells/${spellClass.id}`} key={spellClass.id} >
-              <div
-                key={spellClass.id}
-                className="
+            <Link href={`/spells/class/${spellClass.id}`} key={spellClass.id} className="
                 btn
                 btn-primary
                 w-full
-              "
-              >
-                {spellClass.name}
-
-              </div>
+              ">
+              {spellClass.name}
             </Link>
           ))}
         </div>

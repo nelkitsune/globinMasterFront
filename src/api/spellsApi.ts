@@ -15,6 +15,7 @@ export interface Spell {
     componentsM: boolean;
     materialDesc?: string;
     description: string;
+    summary?: string;
     source?: string;
 }
 
