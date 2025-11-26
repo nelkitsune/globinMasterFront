@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useIniciativaStore } from '../../store/useIniciativaStore';
 
 type AgregarListaModalProps = {
@@ -7,6 +7,7 @@ type AgregarListaModalProps = {
 
 export const AgregarListaModal = ({ onClose }: AgregarListaModalProps) => {
     const agregarALista = useIniciativaStore((state) => state.agregarALista);
+    const [estadoCriatura, setEstadoCriatura] = useState('pj');
 
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -14,8 +15,26 @@ export const AgregarListaModal = ({ onClose }: AgregarListaModalProps) => {
         const nombre = (form.elements.namedItem('nombre') as HTMLInputElement).value;
         const hp = parseInt((form.elements.namedItem('hp') as HTMLInputElement).value);
         const iniciativa = parseInt((form.elements.namedItem('iniciativa') as HTMLInputElement).value);
-        const tipo = (form.elements.namedItem('tipo') as HTMLSelectElement).value as 'pj' | 'npc';
-        agregarALista({ id: Date.now(), nombre, hp, iniciativa, tipo, estados: [] });
+        const tipo = (form.elements.namedItem('tipo') as HTMLSelectElement).value as 'pj' | 'npc-enemigo' | 'npc-aliado' | 'npc-neutral';
+
+        if (tipo === 'npc-enemigo' || tipo === 'npc-aliado' || tipo === 'npc-neutral') {
+            const cantidadEl = form.elements.namedItem('cantidadNPC') as HTMLInputElement | null;
+            const cantidad = Math.max(1, parseInt(cantidadEl?.value || '1', 10));
+            for (let i = 0; i < cantidad; i++) {
+                const nombreItem = cantidad > 1 ? `${nombre} ${i + 1}` : nombre;
+                agregarALista({
+                    id: Date.now() + i,
+                    nombre: nombreItem,
+                    hp,
+                    iniciativa,
+                    tipo,
+                    estados: []
+                });
+            }
+        } else {
+            agregarALista({ id: Date.now(), nombre, hp, iniciativa, tipo, estados: [] });
+        }
+
         onClose();
     };
 
@@ -40,11 +59,19 @@ export const AgregarListaModal = ({ onClose }: AgregarListaModalProps) => {
                         </div>
                         <div>
                             <label htmlFor="tipo">Tipo:</label>
-                            <select id="tipo" name="tipo" required className="modal-input">
+                            <select id="tipo" name="tipo" required className="modal-input" onChange={(e) => setEstadoCriatura(e.target.value)}>
                                 <option value="pj">PJ</option>
-                                <option value="npc">NPC</option>
+                                <option value="npc-enemigo">NPC Enemigo</option>
+                                <option value="npc-aliado">NPC Aliado</option>
+                                <option value="npc-neutral">NPC Neutral</option>
                             </select>
                         </div>
+                        {(estadoCriatura === 'npc-enemigo' || estadoCriatura === 'npc-aliado' || estadoCriatura === 'npc-neutral') && (
+                            <>
+                                <label htmlFor="cantidadNPC"> cantidad de npc: </label>
+                                <input type="number" id="cantidadNPC" name="cantidadNPC" min="1" defaultValue="1" className="modal-input" />
+                            </>
+                        )}
                         <div>
                             <button type="submit" className='btn btn-primary btn-primary:focus btn-primary:hover mr-2 mb-2'>Agregar</button>
                         </div>
