@@ -1,48 +1,33 @@
 import React from 'react'
 import '../../app/globals.css'
+import { CuerpoTabla } from './CuerpoTabla';
+import { useIniciativaStore } from '../../store/useIniciativaStore';
 
 export const TablaDeIniciativa = () => {
-  return (
-    <div className='container'>
-        <table className="min-w-full border border-gray-300 text-sm text-left">
-            <thead className='bg-[var(--olive-500)] text-[var(--fg)]'>
-                <tr>
-                    <th className="px-4 py-2 border border-gray-300">
-                        Estadisticas
-                    </th>
-                    <th className="px-4 py-2 border border-gray-300">
-                        Acciones
-                    </th>
-                </tr>
-            </thead>
-            <tbody className="bg-[var(--card)] text-[var(--fg)]">
-                <tr className="hover:bg-[var(--olive-300)] transition">
-                    <td className="px-4 py-2  grid grid-cols-3 gap-4">
-                        <div>
-                            Nombre
-                        </div>
-                        <div>
-                            Hp: 100/100
-                        </div>
-                        <div>
-                            <div>
-                                Estados
-                            </div>
-                        </div>
-                    </td>
-                    <td className="px-4 py-2 border border-gray-300">
-                        <div>
-                            <button className='btn btn-primary btn-primary:focus btn-primary:hover mr-2 mb-2'>
-                                Agregar Estados
-                            </button>
-                            <button className='btn btn-danger btn-danger:focus btn-danger:hover'>
-                                Muerto
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-  )
+    const lista = useIniciativaStore((state) => state.lista);
+
+    return (
+        <div className='container'>
+            {/* Header - Solo visible en desktop */}
+            <div className="hidden lg:grid lg:grid-cols-[2fr_1fr] mb-3 px-4 py-3 bg-[var(--olive-500)] rounded-xl">
+                <h3 className="font-bold text-lg">Estadísticas</h3>
+                <h3 className="font-bold text-lg text-right pr-4">Acciones</h3>
+            </div>
+
+            {/* Lista de iniciativas */}
+            <div className="space-y-3">
+                {lista.map((iniciativa) => (
+                    <CuerpoTabla key={iniciativa.id} iniciativa={iniciativa} />
+                ))}
+            </div>
+
+            {/* Mensaje si no hay elementos */}
+            {lista.length === 0 && (
+                <div className="text-center py-12 px-4">
+                    <p className="text-gray-600 text-lg">No hay personajes en la iniciativa</p>
+                    <p className="text-gray-500 text-sm mt-2">Agrega personajes para comenzar</p>
+                </div>
+            )}
+        </div>
+    )
 }

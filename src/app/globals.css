@@ -357,3 +357,107 @@
     transform: rotate(360deg);
   }
 }
+
+/* Inicio: estilos para la tabla de iniciativa (ajustados) */
+.iniciativa-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 12px 10px;
+  /* horizontal gap (entre columnas) y vertical gap (entre filas) */
+  font-size: 0.95rem;
+  background: transparent;
+}
+
+/* Encabezado */
+.iniciativa-table thead th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  background: var(--olive-500);
+  color: var(--fg);
+  font-weight: 700;
+  border: none;
+}
+
+/* columnas: dar proporciones fijas para evitar que una ocupe todo */
+.iniciativa-table thead th:first-child,
+.iniciativa-table tbody td:first-child {
+  width: 70%;
+}
+
+.iniciativa-table thead th:last-child,
+.iniciativa-table tbody td:last-child {
+  width: 30%;
+}
+
+/* Celdas del cuerpo: quitar padding directo en td y usar un wrapper .cell para controlar altura */
+.iniciativa-table tbody td {
+  padding: 0;
+  /* padding movido al wrapper .cell para que dos celdas queden del mismo alto */
+  vertical-align: middle;
+  background-clip: padding-box;
+  border: none;
+  overflow: visible;
+}
+
+/* wrapper interno que ocupa toda la celda, mantiene altura igual y centra contenido */
+.iniciativa-table tbody td>.cell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 10px;
+  overflow: hidden;
+  height: 100%;
+  min-height: 48px;
+  /* garantiza altura mínima uniforme */
+}
+
+/* separar visualmente: cada “fila” es el conjunto de dos celdas con box-shadow */
+.iniciativa-table tbody tr>td>.cell {
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04) inset;
+}
+
+/* Asegurar radios en extremos — ya quedan controlados por el wrapper */
+.iniciativa-table tbody tr>td:first-child>.cell {
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+.iniciativa-table tbody tr>td:last-child>.cell {
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+/* columna de acciones: alinear botones a la derecha */
+.iniciativa-table tbody td.actions>.cell {
+  justify-content: flex-end;
+}
+
+/* botones dentro de la tabla */
+.iniciativa-table .btn {
+  padding: 0.4rem 0.8rem;
+  border-radius: 9999px;
+  font-size: 0.9rem;
+}
+
+/* responsive: permitir quiebre de texto en pantallas pequeñas */
+@media (max-width: 640px) {
+  .iniciativa-table {
+    border-spacing: 8px 8px;
+  }
+
+  .iniciativa-table thead th,
+  .iniciativa-table tbody td>.cell {
+    white-space: normal;
+  }
+
+  .iniciativa-table tbody td>.cell {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+}
+
+/* Fin: estilos para la tabla de iniciativa */

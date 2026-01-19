@@ -5,25 +5,158 @@
   background: var(--olive-700);
   color: white;
   border-bottom: 2px solid var(--olive-900);
+  padding: 0.75rem 1.5rem;
 }
 
 .inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
+/* Botón hamburguesa (oculto en desktop) */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  z-index: 60;
+}
+
+.hamburgerLine {
+  width: 25px;
+  height: 3px;
+  background: white;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+/* Navegación */
 .nav {
   display: flex;
-  gap: 16px;
+  align-items: center;
+  gap: 2rem;
 }
 
-.nav a {
+.navLinks {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.navLinks a {
   color: white;
   text-decoration: none;
   font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  position: relative;
 }
 
-.nav a:hover {
-  text-decoration: underline;
+.navLinks a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--olive-100);
+  transition: width 0.3s ease;
+}
+
+.navLinks a:hover::after {
+  width: 100%;
+}
+
+.navLinks a:hover {
+  color: var(--olive-100);
+}
+
+.authButtons {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* === RESPONSIVE === */
+
+/* Tablets */
+@media (max-width: 1024px) {
+  .header {
+    padding: 0.75rem 1rem;
+  }
+
+  .navLinks {
+    gap: 1rem;
+  }
+
+  .navLinks a {
+    font-size: 0.9rem;
+  }
+
+  .authButtons {
+    gap: 0.5rem;
+  }
+}
+
+/* Mobile y tablets pequeñas */
+@media (max-width: 768px) {
+  .hamburger {
+    display: flex;
+  }
+
+  .nav {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    height: 100vh;
+    width: 280px;
+    background: var(--olive-700);
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.5rem;
+    padding: 5rem 2rem 2rem;
+    transition: right 0.3s ease;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
+  }
+
+  .navOpen {
+    right: 0;
+  }
+
+  .navLinks {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .navLinks a {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 1rem;
+  }
+
+  .navLinks a::after {
+    display: none;
+  }
+
+  .navLinks a:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .authButtons {
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .authButtons button {
+    width: 100%;
+    justify-content: center;
+  }
 }
