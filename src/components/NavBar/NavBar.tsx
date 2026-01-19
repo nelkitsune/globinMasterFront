@@ -31,8 +31,8 @@ export default function NavBar() {
                     <nav className={`${styles.nav} ${isMobileMenuOpen ? styles.navOpen : ''}`}>
                         <div className={styles.navLinks}>
                             <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>Inicio</Link>
-                            <Link href="/iniciativa" onClick={() => setIsMobileMenuOpen(false)}>Gestor de Iniciativa</Link>
-                            <Link href="/personajes" onClick={() => setIsMobileMenuOpen(false)}>Mis Personajes</Link>
+                            <Link href="/gestorDeIniciativa" onClick={() => setIsMobileMenuOpen(false)}>Gestor de Iniciativa</Link>
+                            <Link href="/campañas" onClick={() => setIsMobileMenuOpen(false)}>Mis Campañas</Link>
                         </div>
 
                         <div className={styles.authButtons}>

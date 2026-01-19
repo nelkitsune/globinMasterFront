@@ -18,25 +18,6 @@ export default function HomePage() {
         </p>
       </Section>
 
-      <Section title="Mis Personajes" imageSide="left">
-        <p>
-          Administra tus personajes jugadores: atributos, dotes, inventario, rasgos raciales y más.
-          Sincroniza con tu cuenta para acceder desde cualquier dispositivo.
-        </p>
-        <p>
-          Exporta o comparte con tu GM y mantén un historial de niveles y mejoras.
-        </p>
-      </Section>
-
-      <Section title="Bestiarios" imageSide="right">
-        <p>
-          Consulta criaturas por CR, tipo, tamaño, alineamiento, ataques especiales y plantillas.
-          Filtros avanzados para armar encuentros balanceados en segundos.
-        </p>
-        <p>
-          Compatible con reglas personalizadas y variantes caseras.
-        </p>
-      </Section>
       <Section title="Magia" imageSide="left" href="/spells">
         <p>
           Accede a un compendio completo de conjuros organizados por escuela, nivel y clase lanzadora.
