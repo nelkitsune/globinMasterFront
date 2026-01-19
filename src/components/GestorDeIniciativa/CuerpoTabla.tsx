@@ -35,7 +35,7 @@ export const CuerpoTabla: React.FC<Props> = ({ iniciativa }) => {
 
     // Tailwind classes según tipo / estado
     const baseBgClass = isDead
-        ? "bg-gray-200"
+        ? "bg-gray-300"
         : iniciativa.tipo === "pj"
             ? "bg-green-300"
             : iniciativa.tipo === "npc-enemigo"
@@ -46,8 +46,9 @@ export const CuerpoTabla: React.FC<Props> = ({ iniciativa }) => {
                         ? "bg-amber-200"
                         : "bg-white";
 
-
-    const turnoRingClass = iniciativa.actualmenteTurno ? 'ring-4 ring-yellow-500 ring-offset-1 ring-offset-white' : '';
+    const turnoRingClass = iniciativa.actualmenteTurno
+        ? 'ring-4 ring-yellow-500 shadow-lg shadow-yellow-400/50'
+        : 'ring-1 ring-gray-300';
 
     const commitHp = (value: string) => {
         const n = parseInt(value, 10);
@@ -82,25 +83,108 @@ export const CuerpoTabla: React.FC<Props> = ({ iniciativa }) => {
     };
 
     return (
-        <>
-            <td className="align-top p-0">
-                <div className={`h-full w-full p-3 md:p-4 rounded-md ${baseBgClass} ${turnoRingClass} flex  justify-between`}>
-                    <div className="font-semibold truncate text-sm md:text-base lg:text-lg">
-                        {iniciativa.nombre}
+        <div className={`rounded-xl overflow-hidden ${baseBgClass} ${turnoRingClass} transition-all duration-200`}>
+            {/* Mobile y Tablet: Layout vertical */}
+            <div className="lg:hidden">
+                {/* Header con nombre */}
+                <div className="p-4 border-b border-gray-400/30">
+                    <h3 className="font-bold text-lg">{iniciativa.nombre}</h3>
+                    {estados && (
+                        <p className="text-sm text-gray-700 mt-1">{estados}</p>
+                    )}
+                </div>
+
+                {/* Contenido */}
+                <div className="p-4 space-y-4">
+                    {/* HP Controls */}
+                    <div className="flex items-center justify-between gap-3">
+                        <span className="font-semibold text-sm">HP:</span>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={decrementHp}
+                                aria-label="Bajar HP"
+                                className="w-9 h-9 flex items-center justify-center rounded-lg bg-white/80 border border-gray-400 hover:bg-white active:scale-95 transition font-bold text-lg shadow-sm"
+                            >
+                                −
+                            </button>
+                            <div className="flex items-center gap-1">
+                                <input
+                                    type="number"
+                                    value={hpInput}
+                                    onChange={(e) => setHpInput(e.target.value)}
+                                    onBlur={(e) => commitHp(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') commitHp((e.target as HTMLInputElement).value);
+                                        if (e.key === 'Escape') setHpInput(String(iniciativa.hp));
+                                    }}
+                                    className="w-16 text-center px-2 py-2 rounded-lg border border-gray-400 text-base font-semibold bg-white shadow-sm"
+                                    inputMode="numeric"
+                                    pattern="[0-9\-]*"
+                                    aria-label={`HP de ${iniciativa.nombre}`}
+                                />
+                                {iniciativa.hpMax !== undefined && (
+                                    <span className="text-sm text-gray-700 font-medium">/ {iniciativa.hpMax}</span>
+                                )}
+                            </div>
+                            <button
+                                onClick={incrementHp}
+                                aria-label="Subir HP"
+                                className="w-9 h-9 flex items-center justify-center rounded-lg bg-white/80 border border-gray-400 hover:bg-white active:scale-95 transition font-bold text-lg shadow-sm"
+                            >
+                                +
+                            </button>
+                        </div>
                     </div>
 
-                    <div className="mt-2 flex items-center gap-2 md:gap-3">
+                    {/* Actions */}
+                    <div className="flex items-center justify-between gap-2 pt-2 border-t border-gray-400/30">
+                        <div className="flex gap-2">
+                            <button
+                                onClick={onMoveUp}
+                                aria-label="Mover arriba"
+                                className="w-10 h-10 flex items-center justify-center rounded-lg bg-white/80 border border-gray-400 hover:bg-white active:scale-95 transition shadow-sm"
+                            >
+                                ↑
+                            </button>
+                            <button
+                                onClick={onMoveDown}
+                                aria-label="Mover abajo"
+                                className="w-10 h-10 flex items-center justify-center rounded-lg bg-white/80 border border-gray-400 hover:bg-white active:scale-95 transition shadow-sm"
+                            >
+                                ↓
+                            </button>
+                        </div>
                         <button
-                            onClick={incrementHp}
-                            aria-label="Subir HP"
-                            title="Subir HP"
-                            className="w-8 h-8 md:w-9 md:h-9 flex items-center justify-center rounded-md bg-gray-100 border border-gray-300 hover:bg-gray-200 transition text-sm"
+                            className={`px-4 py-2 rounded-lg text-sm font-semibold text-white transition shadow-sm ${isDead ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}`}
+                            onClick={() => setIsDead(!isDead)}
                         >
-                            ↑
+                            {isDead ? 'Revivir' : 'Muerto'}
                         </button>
+                    </div>
+                </div>
+            </div>
 
+            {/* Desktop: Layout horizontal tipo tabla */}
+            <div className="hidden lg:grid lg:grid-cols-[2fr_1fr] lg:gap-0">
+                {/* Columna izquierda: Info y HP */}
+                <div className="p-4 flex flex-col gap-3">
+                    <div>
+                        <h3 className="font-bold text-xl">{iniciativa.nombre}</h3>
+                        {estados && (
+                            <p className="text-sm text-gray-700 mt-1">{estados}</p>
+                        )}
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                        <span className="font-semibold">HP:</span>
+                        <button
+                            onClick={decrementHp}
+                            aria-label="Bajar HP"
+                            className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/80 border border-gray-400 hover:bg-white active:scale-95 transition shadow-sm"
+                        >
+                            −
+                        </button>
                         <div className="flex items-center gap-2">
-                            <span className="text-sm md:text-base font-medium">Hp:</span>
                             <input
                                 type="number"
                                 value={hpInput}
@@ -110,70 +194,49 @@ export const CuerpoTabla: React.FC<Props> = ({ iniciativa }) => {
                                     if (e.key === 'Enter') commitHp((e.target as HTMLInputElement).value);
                                     if (e.key === 'Escape') setHpInput(String(iniciativa.hp));
                                 }}
-                                className="w-14 md:w-20 lg:w-24 text-center no-spin px-2 py-1 rounded-md border border-gray-300 text-sm md:text-base"
+                                className="w-20 text-center px-2 py-1.5 rounded-lg border border-gray-400 font-semibold bg-white shadow-sm"
                                 inputMode="numeric"
                                 pattern="[0-9\-]*"
                                 aria-label={`HP de ${iniciativa.nombre}`}
                             />
-                            <span className="text-xs md:text-sm text-gray-600">
-                                {iniciativa.hpMax !== undefined ? ` / ${iniciativa.hpMax}` : ''}
-                            </span>
+                            {iniciativa.hpMax !== undefined && (
+                                <span className="text-sm text-gray-700">/ {iniciativa.hpMax}</span>
+                            )}
                         </div>
-
                         <button
-                            onClick={decrementHp}
-                            aria-label="Bajar HP"
-                            className="w-8 h-8 md:w-9 md:h-9 flex items-center justify-center rounded-md bg-gray-100 border border-gray-300 hover:bg-gray-200 transition text-sm"
-                            title="Bajar HP"
+                            onClick={incrementHp}
+                            aria-label="Subir HP"
+                            className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/80 border border-gray-400 hover:bg-white active:scale-95 transition shadow-sm"
                         >
-                            ↓
+                            +
                         </button>
                     </div>
-
-                    {estados && (
-                        <div className="mt-2 text-xs md:text-sm text-gray-700">
-                            {estados}
-                        </div>
-                    )}
                 </div>
-            </td>
 
-            <td className="align-top p-0">
-                <div className={`h-full w-full p-3 md:p-4 rounded-md ${baseBgClass} ${turnoRingClass} flex flex-col justify-between`}>
-                    <div className="flex items-center gap-2 md:gap-3">
-                        <div className="flex items-center gap-2 md:gap-3">
-                            <button
-                                onClick={onMoveUp}
-                                aria-label="Mover arriba"
-                                title="Mover arriba"
-                                className="w-8 h-8 md:w-9 md:h-9 flex items-center justify-center rounded-md bg-gray-100 border border-gray-300 hover:bg-gray-200 transition text-sm"
-                            >
-                                ↑
-                            </button>
-
-                            <button
-                                onClick={onMoveDown}
-                                aria-label="Mover abajo"
-                                title="Mover abajo"
-                                className="w-8 h-8 md:w-9 md:h-9 flex items-center justify-center rounded-md bg-gray-100 border border-gray-300 hover:bg-gray-200 transition text-sm"
-                            >
-                                ↓
-                            </button>
-                        </div>
-
-                        <button
-                            className={`px-2 md:px-3 py-1 rounded-md text-sm md:text-base text-white ${isDead ? 'bg-green-600' : 'bg-red-500'}`}
-                            onClick={() => setIsDead(!isDead)}
-                            title="Marcar muerto/vivo"
-                        >
-                            {isDead ? 'Revivir' : 'Muerto'}
-                        </button>
-                    </div>
-
-                    {/* espacio inferior para balancear altura si hace falta */}
-                    <div aria-hidden className="h-0 md:h-0" />
+                {/* Columna derecha: Acciones */}
+                <div className="p-4 flex items-center justify-end gap-3 border-l border-gray-400/30">
+                    <button
+                        onClick={onMoveUp}
+                        aria-label="Mover arriba"
+                        className="w-9 h-9 flex items-center justify-center rounded-lg bg-white/80 border border-gray-400 hover:bg-white active:scale-95 transition shadow-sm"
+                    >
+                        ↑
+                    </button>
+                    <button
+                        onClick={onMoveDown}
+                        aria-label="Mover abajo"
+                        className="w-9 h-9 flex items-center justify-center rounded-lg bg-white/80 border border-gray-400 hover:bg-white active:scale-95 transition shadow-sm"
+                    >
+                        ↓
+                    </button>
+                    <button
+                        className={`px-4 py-2 rounded-lg text-sm font-semibold text-white transition shadow-sm ${isDead ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}`}
+                        onClick={() => setIsDead(!isDead)}
+                    >
+                        {isDead ? 'Revivir' : 'Muerto'}
+                    </button>
                 </div>
-            </td>
-        </>
+            </div>
+        </div>
     )
 }
