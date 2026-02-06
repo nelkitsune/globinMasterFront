@@ -6,6 +6,7 @@ interface Iniciativa {
     nombre: string;
     hp: number;
     hpMax?: number;
+    iniciativa: number;
     estados: string | string[];
     iniciativaResultado?: number;
     tipo?: 'pj' | 'npc-enemigo' | 'npc-aliado' | 'npc-neutral';
@@ -89,6 +90,9 @@ export const CuerpoTabla: React.FC<Props> = ({ iniciativa }) => {
                 {/* Header con nombre */}
                 <div className="p-4 border-b border-gray-400/30">
                     <h3 className="font-bold text-lg">{iniciativa.nombre}</h3>
+                    <p className="text-xs text-gray-700 mt-1">
+                        Ini base: {iniciativa.iniciativa}
+                    </p>
                     {estados && (
                         <p className="text-sm text-gray-700 mt-1">{estados}</p>
                     )}
@@ -170,6 +174,9 @@ export const CuerpoTabla: React.FC<Props> = ({ iniciativa }) => {
                 <div className="p-4 flex flex-col gap-3">
                     <div>
                         <h3 className="font-bold text-xl">{iniciativa.nombre}</h3>
+                        <p className="text-xs text-gray-700 mt-1">
+                            Ini base: {iniciativa.iniciativa}
+                        </p>
                         {estados && (
                             <p className="text-sm text-gray-700 mt-1">{estados}</p>
                         )}

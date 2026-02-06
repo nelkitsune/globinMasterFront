@@ -34,6 +34,7 @@ export type AddMemberRequest = {
 
 export type MemberResponse = {
     id: number;
+    userId: number;
     username: string;
     email: string;
     role: string;

@@ -13,7 +13,7 @@ export const CrearCampaniaModal = ({ onClose, onSuccess }: CrearCampaniaModalPro
   const [formData, setFormData] = useState<CampaignCreate>({
     name: '',
     description: '',
-    system: '',
+    game_system: '',
     setting: '',
   });
   const [createdCampaignId, setCreatedCampaignId] = useState<number | null>(null);
@@ -29,6 +29,7 @@ export const CrearCampaniaModal = ({ onClose, onSuccess }: CrearCampaniaModalPro
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log('Submitting form with data:', formData);
     e.preventDefault();
 
     if (!formData.name.trim()) {
@@ -36,7 +37,15 @@ export const CrearCampaniaModal = ({ onClose, onSuccess }: CrearCampaniaModalPro
       return;
     }
 
-    const campaign = await createCampaign(formData);
+    const payload: CampaignCreate = {
+      name: formData.name.trim(),
+      description: formData.description?.trim() || null,
+      game_system: formData.game_system?.trim() || null,
+      setting: formData.setting?.trim() || null,
+    };
+
+    const campaign = await createCampaign(payload);
+    console.log('Created campaign:', campaign);
 
     if (campaign) {
       setCreatedCampaignId(campaign.id);
@@ -86,8 +95,8 @@ export const CrearCampaniaModal = ({ onClose, onSuccess }: CrearCampaniaModalPro
               <label>Sistema:</label>
               <input
                 type="text"
-                name="system"
-                value={formData.system || ''}
+                name="game_system"
+                value={formData.game_system || ''}
                 onChange={handleInputChange}
                 className="modal-input"
                 placeholder="ej: D&D 5e, Pathfinder"

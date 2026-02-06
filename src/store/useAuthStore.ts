@@ -1,6 +1,8 @@
 "use client";
 import { create } from "zustand";
 import { authEndpoints, LoginPayload, RegisterPayload } from "@/lib/authApiClient";
+import { useCampaignStore } from "@/store/useCampaignStore";
+import { useIniciativaStore } from "@/store/useIniciativaStore";
 
 interface User {
   id: number;
@@ -53,6 +55,23 @@ export const useAuthStore = create<AuthState>((set) => ({
         user,
         isAuthenticated: true
       });
+      // Si no hay user guardado, pedirlo al backend
+      if (!user) {
+        authEndpoints.getCurrentUser()
+          .then((currentUser) => {
+            set({ user: currentUser });
+            localStorage.setItem("user", JSON.stringify(currentUser));
+          })
+          .catch((err) => {
+            console.error("Error hydrating user from /auth/me:", err);
+            // Si falla (401), limpiar sesión
+            if (err?.response?.status === 401) {
+              localStorage.removeItem("token");
+              localStorage.removeItem("user");
+              set({ token: null, user: null, isAuthenticated: false });
+            }
+          });
+      }
     } else if (rawToken) {
       localStorage.removeItem("token");
 
@@ -91,6 +110,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         loading: false,
         error: null,
       });
+
     } catch (error: any) {
       console.error("Login error:", error);
       const message = error?.response?.data?.message
@@ -131,6 +151,17 @@ export const useAuthStore = create<AuthState>((set) => ({
         loading: false,
         error: null,
       });
+
+      // Si el login no devuelve user, pedirlo a /auth/me
+      if (!response.user) {
+        try {
+          const currentUser = await authEndpoints.getCurrentUser();
+          localStorage.setItem("user", JSON.stringify(currentUser));
+          set({ user: currentUser });
+        } catch (fetchError) {
+          console.error("Error fetching current user after login:", fetchError);
+        }
+      }
     } catch (error: any) {
       console.error("Register error:", error);
       const message = error?.response?.data?.message
@@ -152,6 +183,8 @@ export const useAuthStore = create<AuthState>((set) => ({
       localStorage.removeItem("token");
       localStorage.removeItem("user");
     }
+    useCampaignStore.getState().resetStore();
+    useIniciativaStore.getState().resetStore();
     set({
       token: null,
       user: null,

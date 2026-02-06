@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import type { Campaign, MemberResponse } from "@/api/campaignsApi";
 import { useCampaignStore } from "@/store/useCampaignStore";
 import { useAuthStore } from "@/store/useAuthStore";
+import { GestorIniciativaSection } from "./GestorIniciativaSection";
 
 interface DetalleCampaniaProps {
     campaign: Campaign;
@@ -12,24 +13,27 @@ interface DetalleCampaniaProps {
 export const DetalleCampania: React.FC<DetalleCampaniaProps> = ({ campaign, members }) => {
     const { user } = useAuthStore();
 
+    const { updateCampaign, addMember, removeMember, fetchMembers, loading, error } = useCampaignStore();
+
     // Verificar si es owner: debe tener joinCode Y el usuario actual debe tener rol OWNER
     const isOwner = useMemo(() => {
-        if (!campaign.joinCode) return false;
-        if (!user || !members) return Boolean(campaign.joinCode);
-        const currentUserMember = members.find(m => m.id === user.id);
-        return currentUserMember?.role === "OWNER";
+        console.log("=== Debug isOwner ===");
+        console.log("campaign.joinCode:", campaign.joinCode);
+        console.log("user:", user);
+        console.log("members:", members);
+
+        if (!campaign.joinCode) {
+            console.log("❌ No hay joinCode");
+            return false;
+        }
+        if (!user || !members) {
+            console.log("❌ Falta user o members:", { user, members });
+            return false;
+        }
+
+        const currentUserMember = members.find(m => m.userId === user.id);
+        return !!currentUserMember && currentUserMember.role === "OWNER";
     }, [campaign.joinCode, user, members]);
-
-    const statusLabel = campaign.active ? "Activa" : "Inactiva";
-
-    const {
-        updateCampaign,
-        addMember,
-        removeMember,
-        fetchMembers,
-        loading,
-        error,
-    } = useCampaignStore();
 
     const [isEditing, setIsEditing] = useState(false);
     const [isAddingMember, setIsAddingMember] = useState(false);
@@ -45,6 +49,8 @@ export const DetalleCampania: React.FC<DetalleCampaniaProps> = ({ campaign, memb
     const [joinCodeInput, setJoinCodeInput] = useState("");
 
     const safeMembers = useMemo(() => members || [], [members]);
+
+    const statusLabel = campaign.active ? "Activa" : "Inactiva";
 
     useEffect(() => {
         setEditForm({
@@ -306,19 +312,8 @@ export const DetalleCampania: React.FC<DetalleCampaniaProps> = ({ campaign, memb
                 )}
             </div>
 
-            {/* Gestor de iniciativa */}
-            <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-4 sm:p-6">
-                <h2 className="text-lg font-bold text-gray-900 mb-3">Gestor de iniciativa</h2>
-                <div className="flex flex-wrap gap-3">
-                    <button className="btn btn-primary" disabled>
-                        Abrir gestor
-                    </button>
-                    <button className="btn btn-secondary" disabled>
-                        Ver historial
-                    </button>
-                </div>
-                <p className="text-xs text-gray-500 mt-2">Funcionalidad en desarrollo.</p>
-            </div>
+            {/* Gestor de iniciativa - Solo para owners */}
+            {isOwner && <GestorIniciativaSection campaignId={campaign.id} members={members} />}
 
             {/* Reglas y conjuros personalizados */}
             <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-4 sm:p-6">

@@ -39,6 +39,7 @@ interface CampaignState {
     joinCampaign: (code: string) => Promise<Campaign | null>;
     clearError: () => void;
     clearCurrentCampaign: () => void;
+    resetStore: () => void;
 }
 
 export const useCampaignStore = create<CampaignState>((set, get) => ({
@@ -254,4 +255,13 @@ export const useCampaignStore = create<CampaignState>((set, get) => ({
 
     // Clear current campaign
     clearCurrentCampaign: () => set({ currentCampaign: null, members: [] }),
+
+    // Reset store on logout
+    resetStore: () => set({
+        campaigns: [],
+        currentCampaign: null,
+        members: [],
+        loading: false,
+        error: null,
+    }),
 }));
