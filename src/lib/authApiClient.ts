@@ -14,11 +14,23 @@ export const authApi = axios.create({
 authApi.interceptors.request.use(
   (config) => {
     if (typeof window !== "undefined") {
-      const token = localStorage.getItem("token");
+      const rawToken = localStorage.getItem("token");
+      const token = rawToken && rawToken !== "undefined" && rawToken !== "null" ? rawToken : null;
+
+      if (!token && rawToken) {
+        localStorage.removeItem("token");
+      }
+
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
+      } else if (config.headers?.Authorization) {
+        delete config.headers.Authorization;
       }
     }
+
+    console.log("📤 Request:", config.method?.toUpperCase(), config.url);
+    console.log("📦 Request body:", config.data);
+    console.log("📋 Headers:", config.headers);
     return config;
   },
   (error) => Promise.reject(error)
@@ -28,6 +40,9 @@ authApi.interceptors.request.use(
 authApi.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
+    console.error("❌ API Error:", error?.response?.status, error?.config?.url);
+    console.error("Response data:", error?.response?.data);
+
     // Si es 401, logout automático
     if (error?.response?.status === 401) {
       if (typeof window !== "undefined") {
@@ -35,7 +50,7 @@ authApi.interceptors.response.use(
         window.location.href = "/login";
       }
     }
-    
+
     return Promise.reject(error);
   }
 );

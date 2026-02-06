@@ -1,5 +1,6 @@
 "use client";
 
+import { AvatarUploader } from "@/components/AvatarUploader";
 import { useState } from "react";
 
 export default function MiPerfilPage() {

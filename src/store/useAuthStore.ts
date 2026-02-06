@@ -33,11 +33,12 @@ export const useAuthStore = create<AuthState>((set) => ({
   // Hidratar desde localStorage
   hydrate: () => {
     if (typeof window === "undefined") return;
-    
-    const token = localStorage.getItem("token");
+
+    const rawToken = localStorage.getItem("token");
+    const token = rawToken && rawToken !== "undefined" && rawToken !== "null" ? rawToken : null;
     const userStr = localStorage.getItem("user");
     let user = null;
-    
+
     if (userStr) {
       try {
         user = JSON.parse(userStr);
@@ -45,14 +46,16 @@ export const useAuthStore = create<AuthState>((set) => ({
         console.error("Error parsing user from localStorage", e);
       }
     }
-    
+
     if (token) {
-      set({ 
+      set({
         token,
         user,
-        isAuthenticated: true 
+        isAuthenticated: true
       });
-      
+    } else if (rawToken) {
+      localStorage.removeItem("token");
+
       // Opcionalmente cargar datos del usuario si el endpoint existe
       // authEndpoints.getCurrentUser()
       //   .then((user) => set({ user }))
@@ -69,14 +72,20 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ loading: true, error: null });
     try {
       const response = await authEndpoints.login(payload);
-      
-      localStorage.setItem("token", response.token);
+
+      const token = response.token || (response as any).accessToken || (response as any).jwt;
+      if (!token) {
+        set({ loading: false, error: "Login sin token. Revisa el backend." });
+        throw new Error("Login response without token");
+      }
+
+      localStorage.setItem("token", token);
       if (response.user) {
         localStorage.setItem("user", JSON.stringify(response.user));
       }
-      
+
       set({
-        token: response.token,
+        token,
         user: response.user || null,
         isAuthenticated: true,
         loading: false,
@@ -84,14 +93,14 @@ export const useAuthStore = create<AuthState>((set) => ({
       });
     } catch (error: any) {
       console.error("Login error:", error);
-      const message = error?.response?.data?.message 
+      const message = error?.response?.data?.message
         || error?.response?.data?.error
-        || error?.message 
+        || error?.message
         || "Error al iniciar sesión";
-      set({ 
-        loading: false, 
+      set({
+        loading: false,
         error: message,
-        isAuthenticated: false 
+        isAuthenticated: false
       });
       throw error;
     }
@@ -102,15 +111,21 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ loading: true, error: null });
     try {
       const response = await authEndpoints.register(payload);
-      
+
+      const token = response.token || (response as any).accessToken || (response as any).jwt;
+      if (!token) {
+        set({ loading: false, error: "Registro sin token. Revisa el backend." });
+        throw new Error("Register response without token");
+      }
+
       // Auto-login después del registro
-      localStorage.setItem("token", response.token);
+      localStorage.setItem("token", token);
       if (response.user) {
         localStorage.setItem("user", JSON.stringify(response.user));
       }
-      
+
       set({
-        token: response.token,
+        token,
         user: response.user || null,
         isAuthenticated: true,
         loading: false,
@@ -118,14 +133,14 @@ export const useAuthStore = create<AuthState>((set) => ({
       });
     } catch (error: any) {
       console.error("Register error:", error);
-      const message = error?.response?.data?.message 
+      const message = error?.response?.data?.message
         || error?.response?.data?.error
-        || error?.message 
+        || error?.message
         || "Error al registrarse";
-      set({ 
-        loading: false, 
+      set({
+        loading: false,
         error: message,
-        isAuthenticated: false 
+        isAuthenticated: false
       });
       throw error;
     }
