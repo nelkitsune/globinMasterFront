@@ -4,8 +4,9 @@ import React, { useEffect } from "react";
 import { useParams } from "next/navigation";
 import { useCampaignStore } from "@/store/useCampaignStore";
 import { DetalleCampania } from "@/components/Campaing/DetalleCampania";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
-export default function CampaingDetailPage() {
+function CampaingDetailContent() {
     const params = useParams();
     const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
     const campaignId = Number(id);
@@ -39,5 +40,13 @@ export default function CampaingDetailPage() {
         <div className="p-4 sm:p-6 lg:p-8">
             <DetalleCampania campaign={currentCampaign} members={members} />
         </div>
+    );
+}
+
+export default function CampaingDetailPage() {
+    return (
+        <ProtectedRoute>
+            <CampaingDetailContent />
+        </ProtectedRoute>
     );
 }

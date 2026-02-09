@@ -93,3 +93,35 @@ export const getBySpellClassAndLevel = async (classId: number, level: number): P
     const response = await api.get(`/magic/spells/by-class/${classId}/level/${level}`);
     return response.data;
 };
+
+// ===== Homebrew Spells Functions =====
+
+export const listMyHomebrewSpells = async (): Promise<Spell[]> => {
+    const response = await api.get<Spell[]>('/magic/spells/mine');
+    return response.data;
+};
+
+export const addHomebrewSpellToCampaign = async (
+    spellId: number,
+    campaignId: number
+): Promise<void> => {
+    await api.post(`/magic/spells/${spellId}/campaigns/${campaignId}`);
+};
+
+export const listHomebrewSpellsByCampaign = async (
+    campaignId: number
+): Promise<Spell[]> => {
+    const response = await api.get<Spell[]>(
+        `/magic/spells/campaigns/${campaignId}/homebrew`
+    );
+    return response.data;
+};
+
+export const removeHomebrewSpellFromCampaign = async (
+    campaignId: number,
+    spellId: number
+): Promise<void> => {
+    await api.delete(
+        `/magic/spells/campaigns/${campaignId}/${spellId}`
+    );
+};

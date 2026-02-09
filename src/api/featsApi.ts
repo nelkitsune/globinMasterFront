@@ -229,3 +229,34 @@ export const updateFeat = async (id: number, feat: Feat): Promise<Feat> => {
 export const deleteFeat = async (id: number): Promise<void> => {
   await api.delete(`/feats/${id}`);
 };
+
+// ===== Homebrew Feats Functions =====
+
+export const listMyHomebrewFeats = async (): Promise<Feat[]> => {
+  const response = await api.get<ApiFeat[]>("/feats/mine");
+  return response.data.map((f) => mapApiFeatToUI(f));
+};
+
+export const addHomebrewFeatToCampaign = async (
+  featId: number,
+  campaignId: number
+): Promise<void> => {
+  await api.post(`/feats/${featId}/campaigns/${campaignId}`);
+};
+
+export const listHomebrewFeatsByCampaign = async (
+  campaignId: number
+): Promise<Feat[]> => {
+  const response = await api.get<ApiFeat[]>(
+    `/feats/campaigns/${campaignId}/homebrew`
+  );
+  return response.data.map((f) => mapApiFeatToUI(f));
+};
+
+export const removeHomebrewFeatFromCampaign = async (
+  campaignId: number,
+  featId: number
+): Promise<void> => {
+  await api.delete(`/feats/campaigns/${campaignId}/${featId}`);
+};
+

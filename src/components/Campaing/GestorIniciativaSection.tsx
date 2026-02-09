@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
+import { JSX } from "react";
 import { useRouter } from "next/navigation";
 import { CreateCharacterModal } from "./CreateCharacterModal";
 import { EditCharacterModal } from "./EditCharacterModal";
