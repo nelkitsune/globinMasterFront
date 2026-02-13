@@ -1,20 +1,20 @@
-import { authApi } from "@/lib/authApiClient";
+import { api } from "@/api/axiosInstance";
 import { RuleCreateRequest, RuleResponse } from "@/types/rules";
 
-const RULES_API = "/api/rules";
+const RULES_API = "/rules";
 
 export const createRule = async (req: RuleCreateRequest): Promise<RuleResponse> => {
-    const response = await authApi.post<RuleResponse>(RULES_API, req);
+    const response = await api.post<RuleResponse>(RULES_API, req);
     return response.data;
 };
 
 export const listMyRules = async (): Promise<RuleResponse[]> => {
-    const response = await authApi.get<RuleResponse[]>(`${RULES_API}/mine`);
+    const response = await api.get<RuleResponse[]>(`${RULES_API}/mine`);
     return response.data;
 };
 
 export const getRule = async (id: number): Promise<RuleResponse> => {
-    const response = await authApi.get<RuleResponse>(`${RULES_API}/${id}`);
+    const response = await api.get<RuleResponse>(`${RULES_API}/${id}`);
     return response.data;
 };
 
@@ -22,7 +22,7 @@ export const updateRule = async (
     id: number,
     req: RuleCreateRequest
 ): Promise<RuleResponse> => {
-    const response = await authApi.patch<RuleResponse>(
+    const response = await api.patch<RuleResponse>(
         `${RULES_API}/${id}`,
         req
     );
@@ -30,5 +30,5 @@ export const updateRule = async (
 };
 
 export const deleteRule = async (id: number): Promise<void> => {
-    await authApi.delete(`${RULES_API}/${id}`);
+    await api.delete(`${RULES_API}/${id}`);
 };

@@ -13,6 +13,8 @@ export const authApi = axios.create({
 // Request interceptor: añade Authorization header
 authApi.interceptors.request.use(
   (config) => {
+    const url = config.url ?? "";
+    const isAuthRoute = url.includes("/auth/login") || url.includes("/auth/register");
     if (typeof window !== "undefined") {
       const rawToken = localStorage.getItem("token");
       const token = rawToken && rawToken !== "undefined" && rawToken !== "null" ? rawToken : null;
@@ -21,7 +23,7 @@ authApi.interceptors.request.use(
         localStorage.removeItem("token");
       }
 
-      if (token) {
+      if (token && !isAuthRoute) {
         config.headers.Authorization = `Bearer ${token}`;
       } else if (config.headers?.Authorization) {
         delete config.headers.Authorization;
