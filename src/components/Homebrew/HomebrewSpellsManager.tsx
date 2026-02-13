@@ -1,6 +1,7 @@
 "use client";
 
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import {
     Spell,
     SpellClass,
@@ -384,6 +385,14 @@ export default function HomebrewSpellsManager() {
                                     </div>
                                 </div>
                                 <div className="flex gap-2">
+                                    {spell.id && (
+                                        <Link
+                                            href={`/spells/${spell.id}`}
+                                            className="btn btn-outline btn-sm"
+                                        >
+                                            Ver
+                                        </Link>
+                                    )}
                                     <button
                                         className="btn btn-secondary btn-sm"
                                         onClick={() => openEdit(spell)}

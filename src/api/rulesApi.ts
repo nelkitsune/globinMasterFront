@@ -13,6 +13,11 @@ export const listMyRules = async (): Promise<RuleResponse[]> => {
     return response.data;
 };
 
+export const listRules = async (): Promise<RuleResponse[]> => {
+    const response = await api.get<RuleResponse[]>(RULES_API);
+    return response.data;
+};
+
 export const getRule = async (id: number): Promise<RuleResponse> => {
     const response = await api.get<RuleResponse>(`${RULES_API}/${id}`);
     return response.data;

@@ -1,6 +1,7 @@
 "use client";
 
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import {
     Feat,
     createFeat,
@@ -218,6 +219,14 @@ export default function HomebrewFeatsManager() {
                                     ) : null}
                                 </div>
                                 <div className="flex gap-2">
+                                    {feat.id && (
+                                        <Link
+                                            href={`/feats/${feat.id}`}
+                                            className="btn btn-outline btn-sm"
+                                        >
+                                            Ver
+                                        </Link>
+                                    )}
                                     <button
                                         className="btn btn-secondary btn-sm"
                                         onClick={() => openEdit(feat)}

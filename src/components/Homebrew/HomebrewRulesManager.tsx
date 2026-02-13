@@ -1,6 +1,7 @@
 "use client";
 
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { useRulesStore } from "@/store/useRulesStore";
 import { RuleCreateRequest, RuleResponse } from "@/types/rules";
 import { DeleteConfirmationModal } from "@/components/Campaing/DeleteConfirmationModal";
@@ -155,6 +156,12 @@ export default function HomebrewRulesManager() {
                                     )}
                                 </div>
                                 <div className="flex gap-2">
+                                    <Link
+                                        href={`/rules/${rule.id}`}
+                                        className="btn btn-outline btn-sm"
+                                    >
+                                        Ver
+                                    </Link>
                                     <button
                                         className="btn btn-secondary btn-sm"
                                         onClick={() => openEdit(rule)}

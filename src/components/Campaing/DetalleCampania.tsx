@@ -4,6 +4,7 @@ import type { Campaign, MemberResponse } from "@/api/campaignsApi";
 import { useCampaignStore } from "@/store/useCampaignStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { GestorIniciativaSection } from "./GestorIniciativaSection";
+import HomebrewCampaignSection from "./HomebrewCampaignSection";
 
 interface DetalleCampaniaProps {
     campaign: Campaign;
@@ -315,27 +316,7 @@ export const DetalleCampania: React.FC<DetalleCampaniaProps> = ({ campaign, memb
             {/* Gestor de iniciativa - Solo para owners */}
             {isOwner && <GestorIniciativaSection campaignId={campaign.id} members={members} />}
 
-            {/* Reglas y conjuros personalizados */}
-            <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-4 sm:p-6">
-                <h2 className="text-lg font-bold text-gray-900 mb-3">Reglas y conjuros personalizados</h2>
-                <p className="text-sm text-gray-600 mb-4">
-                    Sección disponible para reglas y conjuros de la campaña (en desarrollo).
-                </p>
-                <div className="flex flex-wrap gap-3">
-                    {isOwner ? (
-                        <>
-                            <button className="btn btn-primary" disabled>
-                                Agregar regla
-                            </button>
-                            <button className="btn btn-secondary" disabled>
-                                Agregar conjuro
-                            </button>
-                        </>
-                    ) : (
-                        <span className="text-xs text-gray-500">Solo lectura para jugadores.</span>
-                    )}
-                </div>
-            </div>
+            <HomebrewCampaignSection campaignId={campaign.id} isOwner={isOwner} />
 
             {/* Registro de XP */}
             <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-4 sm:p-6">
