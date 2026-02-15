@@ -7,7 +7,7 @@ import {
     AddMemberRequest,
     MemberResponse,
     createCampaign,
-    getMyCampaigns,
+    getMyCampaignsFiltered,
     addMemberToCampaign,
     getCampaignById,
     updateCampaign,
@@ -17,6 +17,7 @@ import {
     transferCampaignOwnership,
     listMyCampaigns,
     joinCampaignByCode,
+    CampaignFilterStatus,
 } from "@/api/campaignsApi";
 
 interface CampaignState {
@@ -27,7 +28,7 @@ interface CampaignState {
     error: string | null;
 
     // Actions
-    fetchMyCampaigns: () => Promise<void>;
+    fetchMyCampaigns: (filters?: { status?: CampaignFilterStatus; name?: string }) => Promise<void>;
     fetchCampaignById: (id: number) => Promise<void>;
     createCampaign: (data: CampaignCreate) => Promise<Campaign | null>;
     updateCampaign: (id: number, data: CampaignUpdate) => Promise<Campaign | null>;
@@ -50,22 +51,17 @@ export const useCampaignStore = create<CampaignState>((set, get) => ({
     error: null,
 
     // Fetch my campaigns
-    fetchMyCampaigns: async () => {
+    fetchMyCampaigns: async (filters) => {
         set({ loading: true, error: null });
         try {
-            const campaigns = await getMyCampaigns();
-            const campaignsWithCounts = await Promise.all(
-                campaigns.map(async (campaign) => {
-                    try {
-                        const members = await getCampaignMembers(campaign.id);
-                        return { ...campaign, membersCount: members.length };
-                    } catch (membersError) {
-                        console.error("Error fetching campaign members:", membersError);
-                        return { ...campaign, membersCount: 0 };
-                    }
-                })
-            );
-            set({ campaigns: campaignsWithCounts, loading: false });
+            const status = filters?.status ?? "all";
+            const name = filters?.name;
+            const campaigns = await getMyCampaignsFiltered(status, name);
+            const normalized = campaigns.map((campaign) => ({
+                ...campaign,
+                membersCount: typeof campaign.membersCount === "number" ? campaign.membersCount : 0,
+            }));
+            set({ campaigns: normalized, loading: false });
         } catch (error: any) {
             console.error("Error fetching campaigns:", error);
             const message =

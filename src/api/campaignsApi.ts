@@ -14,6 +14,8 @@ export type Campaign = {
     updatedAt?: string;
 };
 
+export type CampaignFilterStatus = "all" | "active" | "archived";
+
 export type CampaignCreate = {
     name: string;
     description?: string | null;
@@ -59,6 +61,19 @@ export const createCampaign = async (
 // GET - Get all my campaigns
 export const getMyCampaigns = async (): Promise<Campaign[]> => {
     const response = await authApi.get<Campaign[]>(CAMPAIGNS_API);
+    return response.data;
+};
+
+// GET - Get my campaigns with filters
+export const getMyCampaignsFiltered = async (
+    status: CampaignFilterStatus = "all",
+    name?: string
+): Promise<Campaign[]> => {
+    const params: Record<string, string> = { status };
+    const trimmed = name?.trim();
+    if (trimmed) params.name = trimmed;
+
+    const response = await authApi.get<Campaign[]>(CAMPAIGNS_API, { params });
     return response.data;
 };
 

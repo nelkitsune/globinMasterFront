@@ -6,6 +6,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { GestorIniciativaSection } from "./GestorIniciativaSection";
 import HomebrewCampaignSection from "./HomebrewCampaignSection";
 import XpLogSection from "./XpLogSection";
+import { DeleteConfirmationModal } from "./DeleteConfirmationModal";
 
 interface DetalleCampaniaProps {
     campaign: Campaign;
@@ -40,6 +41,8 @@ export const DetalleCampania: React.FC<DetalleCampaniaProps> = ({ campaign, memb
     const [isEditing, setIsEditing] = useState(false);
     const [isAddingMember, setIsAddingMember] = useState(false);
     const [isRemovingMember, setIsRemovingMember] = useState(false);
+    const [isTogglingStatus, setIsTogglingStatus] = useState(false);
+    const [showStatusConfirm, setShowStatusConfirm] = useState(false);
 
     const [editForm, setEditForm] = useState({
         name: campaign.name || "",
@@ -83,9 +86,12 @@ export const DetalleCampania: React.FC<DetalleCampaniaProps> = ({ campaign, memb
     };
 
     const handleToggleStatus = async () => {
+        setIsTogglingStatus(true);
         await updateCampaign(campaign.id, {
             active: !campaign.active,
         });
+        setIsTogglingStatus(false);
+        setShowStatusConfirm(false);
     };
 
     const handleAddMember = async () => {
@@ -194,13 +200,6 @@ export const DetalleCampania: React.FC<DetalleCampaniaProps> = ({ campaign, memb
                         >
                             {isRemovingMember ? "Cancelar" : "Eliminar jugador"}
                         </button>
-                        <button
-                            className="btn btn-secondary"
-                            onClick={handleToggleStatus}
-                            disabled={loading}
-                        >
-                            Cambiar estado ({campaign.active ? "Inactivar" : "Activar"})
-                        </button>
                     </div>
                     {error && (
                         <p className="text-xs text-red-600 mt-2">{error}</p>
@@ -279,6 +278,41 @@ export const DetalleCampania: React.FC<DetalleCampaniaProps> = ({ campaign, memb
                         </div>
                     )}
                 </div>
+            )}
+
+            {/* Zona de Peligro - Solo para owners */}
+            {isOwner && (
+                <div className="bg-white rounded-2xl shadow-md border-2 border-red-200 p-4 sm:p-6">
+                    <h2 className="text-lg font-bold text-red-700 mb-2">Zona de Peligro</h2>
+                    <p className="text-sm text-gray-600 mb-4">
+                        {campaign.active
+                            ? "Archivar la campaña la oculta de los listados de campañas activas y evita nuevas sesiones. Puedes reactivarla cuando quieras."
+                            : "Esta campaña esta archivada. Puedes volver a activarla para que aparezca en tus campañas activas."}
+                    </p>
+                    <button
+                        className={campaign.active ? "btn btn-danger" : "btn btn-secondary"}
+                        onClick={() => setShowStatusConfirm(true)}
+                        disabled={loading}
+                    >
+                        {campaign.active ? "Archivar campaña" : "Reactivar campaña"}
+                    </button>
+                </div>
+            )}
+
+            {isOwner && showStatusConfirm && (
+                <DeleteConfirmationModal
+                    title={campaign.active ? "Archivar campaña" : "Reactivar campaña"}
+                    message={
+                        campaign.active
+                            ? "Estas seguro de archivar esta campaña? Los jugadores no la veran como activa hasta que la reactives."
+                            : "Estas seguro de reactivar esta campaña? Volvera a aparecer en tus campañas activas."
+                    }
+                    confirmText={campaign.active ? "Archivar" : "Reactivar"}
+                    cancelText="Cancelar"
+                    onCancel={() => setShowStatusConfirm(false)}
+                    onConfirm={handleToggleStatus}
+                    isLoading={loading || isTogglingStatus}
+                />
             )}
 
             {/* Miembros */}
