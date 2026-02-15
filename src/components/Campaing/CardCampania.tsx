@@ -1,16 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
-export type Campaign = {
-  id: number;
-  name: string;
-  description?: string | null;
-  system?: string | null;
-  active: boolean;
-  imageUrl?: string | null;
-  joinCode?: string;
-  createdAt?: string;
-  updatedAt?: string;
-};
+import type { Campaign } from '@/api/campaignsApi'
 export const CardCampania: React.FC<{ campaign: Campaign }> = ({ campaign }) => {
   return (
     <div className='bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 p-4 sm:p-5 flex flex-col gap-3 border border-gray-200 w-full h-full min-h-[320px]'>
@@ -42,10 +32,10 @@ export const CardCampania: React.FC<{ campaign: Campaign }> = ({ campaign }) => 
       </p>
       <div className='flex flex-wrap gap-3 text-xs sm:text-sm text-gray-500 border-t pt-3 mt-auto'>
         <div className='flex items-center gap-1'>
-          <span className='font-semibold'>5</span> jugadores
-        </div>
-        <div className='flex items-center gap-1'>
-          <span className='font-semibold'>12</span> sesiones
+          <span className='font-semibold'>
+            {typeof campaign.membersCount === 'number' ? campaign.membersCount : '-'}
+          </span>
+          jugadores
         </div>
       </div>
       <Link

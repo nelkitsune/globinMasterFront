@@ -54,7 +54,18 @@ export const useCampaignStore = create<CampaignState>((set, get) => ({
         set({ loading: true, error: null });
         try {
             const campaigns = await getMyCampaigns();
-            set({ campaigns, loading: false });
+            const campaignsWithCounts = await Promise.all(
+                campaigns.map(async (campaign) => {
+                    try {
+                        const members = await getCampaignMembers(campaign.id);
+                        return { ...campaign, membersCount: members.length };
+                    } catch (membersError) {
+                        console.error("Error fetching campaign members:", membersError);
+                        return { ...campaign, membersCount: 0 };
+                    }
+                })
+            );
+            set({ campaigns: campaignsWithCounts, loading: false });
         } catch (error: any) {
             console.error("Error fetching campaigns:", error);
             const message =

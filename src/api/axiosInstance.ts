@@ -37,11 +37,25 @@ api.interceptors.request.use(cfg => {
   console.debug("API request:", cfg.method, `${cfg.baseURL}${cfg.url}`);
   return cfg;
 });
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 api.interceptors.response.use(
   r => r,
-  err => {
+  async err => {
     // eslint-disable-next-line no-console
     console.error("API error:", err?.response?.status, err?.config?.url, err?.response?.data);
+
+    const config = err?.config as (typeof err.config & { _retryCount?: number }) | undefined;
+    const isNetworkError = !err?.response;
+    const isGet = (config?.method || "").toLowerCase() === "get";
+    const retryCount = config?._retryCount ?? 0;
+
+    if (isNetworkError && isGet && config && retryCount < 2) {
+      config._retryCount = retryCount + 1;
+      await sleep(400 * config._retryCount);
+      return api(config);
+    }
+
     return Promise.reject(err);
   }
 );

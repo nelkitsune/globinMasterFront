@@ -8,6 +8,7 @@ export type Campaign = {
     setting?: string | null;
     active: boolean;
     imageUrl?: string | null;
+    membersCount?: number;
     joinCode?: string;
     createdAt?: string;
     updatedAt?: string;

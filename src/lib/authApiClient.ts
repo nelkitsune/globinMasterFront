@@ -39,11 +39,24 @@ authApi.interceptors.request.use(
 );
 
 // Response interceptor: maneja 401
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 authApi.interceptors.response.use(
   (response) => response,
-  (error: AxiosError) => {
+  async (error: AxiosError) => {
     console.error("❌ API Error:", error?.response?.status, error?.config?.url);
     console.error("Response data:", error?.response?.data);
+
+    const config = error?.config as (typeof error.config & { _retryCount?: number }) | undefined;
+    const isNetworkError = !error?.response;
+    const isGet = (config?.method || "").toLowerCase() === "get";
+    const retryCount = config?._retryCount ?? 0;
+
+    if (isNetworkError && isGet && config && retryCount < 2) {
+      config._retryCount = retryCount + 1;
+      await sleep(400 * config._retryCount);
+      return authApi(config);
+    }
 
     // Si es 401, logout automático
     if (error?.response?.status === 401) {

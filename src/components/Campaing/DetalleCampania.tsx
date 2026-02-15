@@ -5,6 +5,7 @@ import { useCampaignStore } from "@/store/useCampaignStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { GestorIniciativaSection } from "./GestorIniciativaSection";
 import HomebrewCampaignSection from "./HomebrewCampaignSection";
+import XpLogSection from "./XpLogSection";
 
 interface DetalleCampaniaProps {
     campaign: Campaign;
@@ -318,44 +319,15 @@ export const DetalleCampania: React.FC<DetalleCampaniaProps> = ({ campaign, memb
 
             <HomebrewCampaignSection campaignId={campaign.id} isOwner={isOwner} />
 
-            {/* Registro de XP */}
-            <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-4 sm:p-6">
-                <h2 className="text-lg font-bold text-gray-900 mb-3">Registro de experiencia</h2>
-                <form className="grid grid-cols-1 md:grid-cols-2 gap-4" onSubmit={(e) => e.preventDefault()}>
-                    <div>
-                        <label className="text-xs text-gray-600">XP ganada</label>
-                        <input
-                            type="number"
-                            className="w-full border border-gray-300 rounded-lg p-2 text-sm"
-                            placeholder="Ej: 250"
-                            disabled
-                        />
-                    </div>
-                    <div>
-                        <label className="text-xs text-gray-600">Participantes</label>
-                        <input
-                            type="text"
-                            className="w-full border border-gray-300 rounded-lg p-2 text-sm"
-                            placeholder="Ej: Ana, Juan, Marta"
-                            disabled
-                        />
-                    </div>
-                    <div className="md:col-span-2">
-                        <label className="text-xs text-gray-600">Descripción</label>
-                        <textarea
-                            className="w-full border border-gray-300 rounded-lg p-2 text-sm min-h-[100px]"
-                            placeholder="Describe el evento o sesión"
-                            disabled
-                        />
-                    </div>
-                    <div className="md:col-span-2">
-                        <button className="btn btn-primary" disabled>
-                            Guardar registro
-                        </button>
-                        <p className="text-xs text-gray-500 mt-2">Funcionalidad en desarrollo.</p>
-                    </div>
-                </form>
-            </div>
+            {/* XP Log Section */}
+            {user && (
+                <XpLogSection
+                    campaignId={campaign.id}
+                    userId={user.id}
+                    isOwner={isOwner}
+                    members={safeMembers}
+                />
+            )}
         </div>
     );
 };
