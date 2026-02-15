@@ -1,0 +1,43 @@
+"use client";
+
+import React, { useState } from 'react'
+import { CrearCampaniaModal } from './CrearCampaniaModal';
+
+export const CrearNuevaCampania = () => {
+    const [showCreateModal, setShowCreateModal] = useState(false);
+
+    return (
+        <>
+            <button
+                type="button"
+                onClick={() => setShowCreateModal(true)}
+                className='bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg border-2 border-dashed border-yellow-400 hover:border-yellow-500 hover:shadow-xl transition-all duration-300 p-6 sm:p-8 flex flex-col items-center justify-center gap-4 w-full h-full min-h-[320px]'
+            >
+                <div className='bg-white rounded-full p-4 shadow-md hover:shadow-lg transition-shadow duration-300'>
+                    <svg
+                        className="w-8 h-8 sm:w-10 sm:h-10 text-yellow-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={3}
+                            d="M12 4v16m8-8H4"
+                        />
+                    </svg>
+                </div>
+                <h3 className='text-lg sm:text-xl md:text-2xl font-bold text-yellow-800 text-center'>
+                    Crear Nueva Campaña
+                </h3>
+                <p className='text-yellow-700 text-xs sm:text-sm md:text-base text-center'>
+                    Comienza una nueva aventura épica
+                </p>
+            </button>
+            {showCreateModal && (
+                <CrearCampaniaModal onClose={() => setShowCreateModal(false)} />
+            )}
+        </>
+    )
+}

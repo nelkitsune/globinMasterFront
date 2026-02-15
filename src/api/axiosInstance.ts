@@ -1,6 +1,13 @@
 import axios from "axios";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
+const normalizeApiBase = (value: string): string => {
+  const trimmed = value.replace(/\/$/, "");
+  return trimmed.endsWith("/api") ? trimmed : `${trimmed}/api`;
+};
+
+const API_URL = normalizeApiBase(
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api"
+);
 
 export const api = axios.create({
   baseURL: API_URL,
@@ -11,15 +18,44 @@ export const api = axios.create({
 
 // debug: muestra la URL completa de cada request y errores
 api.interceptors.request.use(cfg => {
+  if (typeof window !== "undefined") {
+    const rawToken = localStorage.getItem("token");
+    const token = rawToken && rawToken !== "undefined" && rawToken !== "null" ? rawToken : null;
+
+    if (!token && rawToken) {
+      localStorage.removeItem("token");
+    }
+
+    if (token) {
+      cfg.headers.Authorization = `Bearer ${token}`;
+    } else if (cfg.headers?.Authorization) {
+      delete cfg.headers.Authorization;
+    }
+  }
+
   // eslint-disable-next-line no-console
   console.debug("API request:", cfg.method, `${cfg.baseURL}${cfg.url}`);
   return cfg;
 });
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 api.interceptors.response.use(
   r => r,
-  err => {
+  async err => {
     // eslint-disable-next-line no-console
     console.error("API error:", err?.response?.status, err?.config?.url, err?.response?.data);
+
+    const config = err?.config as (typeof err.config & { _retryCount?: number }) | undefined;
+    const isNetworkError = !err?.response;
+    const isGet = (config?.method || "").toLowerCase() === "get";
+    const retryCount = config?._retryCount ?? 0;
+
+    if (isNetworkError && isGet && config && retryCount < 2) {
+      config._retryCount = retryCount + 1;
+      await sleep(400 * config._retryCount);
+      return api(config);
+    }
+
     return Promise.reject(err);
   }
 );

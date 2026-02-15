@@ -17,7 +17,19 @@ export default async function FeatDetailPage(props: { params: Promise<{ id: numb
             grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)]">
         <div>
           <header>
-            <h1 className="text-3xl font-bold">{feat.name}</h1>
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-3xl font-bold">{feat.name}</h1>
+              <span
+                className={
+                  "text-xs px-3 py-1 rounded-full border " +
+                  (feat.source === "homerule"
+                    ? "border-emerald-600/40 bg-emerald-100 text-emerald-900"
+                    : "border-slate-400/60 bg-white/60 text-slate-700")
+                }
+              >
+                {feat.source === "homerule" ? "Homerule" : "Oficial"}
+              </span>
+            </div>
             <br />
             <p className="text-xl opacity-70">
               {feat.descripcion}

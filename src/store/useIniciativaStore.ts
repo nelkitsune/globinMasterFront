@@ -13,6 +13,7 @@ type IniciativaState = {
     }>;
     asalto: number;
     agregarALista: (personaje: { id: number; nombre: string; hp: number; iniciativa: number; iniciativaResultado?: number; tipo: 'pj' | 'npc-enemigo' | 'npc-aliado' | 'npc-neutral'; estados: string | string[]; }) => void;
+    setLista: (lista: Array<{ id: number; nombre: string; hp: number; iniciativa: number; iniciativaResultado?: number; tipo: 'pj' | 'npc-enemigo' | 'npc-aliado' | 'npc-neutral'; estados: string | string[]; actualmenteTurno?: boolean; }>) => void;
     eliminarDeLista: (id: number) => void;
     limpiarLista: () => void;
     ordenarLista: () => void;
@@ -24,12 +25,14 @@ type IniciativaState = {
     moverDespuesDe: (idMover: number, idObjetivo: number) => void; // <-- nuevo método
     moverArriba: (id: number) => void; // <-- nuevo método
     moverAbajo: (id: number) => void;  // <-- nuevo método
+    resetStore: () => void;
 };
 
 export const useIniciativaStore = create<IniciativaState>((set, get) => ({
     lista: [],
     asalto: 1,
     agregarALista: (personaje: { id: number; nombre: string; hp: number; iniciativa: number; iniciativaResultado?: number; tipo: 'pj' | 'npc-enemigo' | 'npc-aliado' | 'npc-neutral'; estados: string | string[]; }) => set((state: IniciativaState) => ({ lista: [...state.lista, personaje] })),
+    setLista: (lista) => set({ lista, asalto: 1 }),
     eliminarDeLista: (id: number) => set((state: IniciativaState) => ({ lista: state.lista.filter((p) => p.id !== id) })),
     limpiarLista: () => set({ lista: [], asalto: 1 }),
     ordenarLista: () => set((state: IniciativaState) => ({ lista: [...state.lista].sort((a, b) => (b.iniciativaResultado ?? 0) - (a.iniciativaResultado ?? 0)) })),
@@ -153,4 +156,5 @@ export const useIniciativaStore = create<IniciativaState>((set, get) => ({
 
         return { lista: nueva };
     }),
+    resetStore: () => set({ lista: [], asalto: 1 }),
 }));

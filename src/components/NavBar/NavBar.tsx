@@ -2,13 +2,20 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import styles from "./NavBar.module.css";
-import AuthModal from '../AuthModal/AuthModal';
+import { useAuthStore } from '@/store/useAuthStore';
 
 export default function NavBar() {
-    const [showModal, setShowModal] = useState(false);
-    const [modalMode, setModalMode] = useState<"login" | "register">("login");
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const { isAuthenticated, user, logout } = useAuthStore();
+    const router = useRouter();
+
+    const handleLogout = () => {
+        logout();
+        setIsMobileMenuOpen(false);
+        router.push('/login');
+    };
 
     return (
         <header>
@@ -32,26 +39,49 @@ export default function NavBar() {
                         <div className={styles.navLinks}>
                             <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>Inicio</Link>
                             <Link href="/gestorDeIniciativa" onClick={() => setIsMobileMenuOpen(false)}>Gestor de Iniciativa</Link>
-                            <Link href="/campañas" onClick={() => setIsMobileMenuOpen(false)}>Mis Campañas</Link>
+                            {isAuthenticated && (
+                                <>
+                                    <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>Dashboard</Link>
+                                    <Link href="/miPerfil" onClick={() => setIsMobileMenuOpen(false)}>Mi Perfil</Link>
+                                </>
+                            )}
                         </div>
 
                         <div className={styles.authButtons}>
-                            <button className='btn btn-primary btn-sm' onClick={() => { setModalMode("login"); setShowModal(true); setIsMobileMenuOpen(false); }}>
-                                Iniciar sesión
-                            </button>
-                            <button className='btn btn-outline btn-sm' onClick={() => { setModalMode("register"); setShowModal(true); setIsMobileMenuOpen(false); }}>
-                                Registrarse
-                            </button>
+                            {isAuthenticated ? (
+                                <>
+                                    <span className="text-sm" style={{ color: 'white', opacity: 0.8 }}>
+                                        {user?.username || user?.email}
+                                    </span>
+                                    <button 
+                                        className='btn btn-outline btn-sm' 
+                                        onClick={handleLogout}
+                                    >
+                                        Cerrar Sesión
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <Link 
+                                        href="/login" 
+                                        className='btn btn-primary btn-sm'
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                    >
+                                        Iniciar sesión
+                                    </Link>
+                                    <Link 
+                                        href="/register" 
+                                        className='btn btn-outline btn-sm'
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                    >
+                                        Registrarse
+                                    </Link>
+                                </>
+                            )}
                         </div>
                     </nav>
                 </div>
             </div>
-            {showModal && (
-                <AuthModal
-                    mode={modalMode}
-                    onClose={() => setShowModal(false)}
-                />
-            )}
         </header>
     );
 }

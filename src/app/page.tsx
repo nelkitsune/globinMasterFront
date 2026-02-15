@@ -35,7 +35,15 @@ export default function HomePage() {
           Ideal para personalizar y optimizar tus personajes según las necesidades de la campaña.
         </p>
       </Section>
-      <Section title="Mis campañas" imageSide="left">
+      <Section title="Reglas" imageSide="left" href="/rules">
+        <p>
+          Revisa reglas oficiales y caseras para tu mesa. Encuentra rapidamente la regla que necesitas.
+        </p>
+        <p>
+          Ideal para consultas rapidas durante la partida.
+        </p>
+      </Section>
+      <Section title="Mis campañas" imageSide="right" href="/campaing">
         <p>
           Administra tus campañas de juego: crea y organiza sesiones, lleva un registro de eventos importantes y gestiona la información de los personajes.
         </p>

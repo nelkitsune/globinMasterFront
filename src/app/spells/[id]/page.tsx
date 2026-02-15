@@ -1,8 +1,9 @@
 "use client"
-import React from 'react'
+import React from "react";
 import { useParams } from "next/navigation";
-import { getSpellById, Spell } from '@/api/spellsApi';
-import { useEffect, useState } from 'react';
+import Link from "next/link";
+import { getSpellById, Spell } from "@/api/spellsApi";
+import { useEffect, useState } from "react";
 
 
 export default function SpellPage() {
@@ -20,20 +21,101 @@ export default function SpellPage() {
             console.error("Error fetching spell:", error);
         });
     }, [])
-    return (
-        <div>
-            {spell ? (
-                <div>
-                    <h1 className="text-2xl font-bold mb-4">{spell.name}</h1>
-                    <p className="mb-2"><strong>Casting Time:</strong> {spell.castingTime}</p>
-                    <p className="mb-2"><strong>Range:</strong> {spell.rangeText}</p>
-                    <p className="mb-2"><strong>Duration:</strong> {spell.durationText}</p>
-                    <p className="mb-4"><strong>Description:</strong> {spell.description}</p>
+    if (!spell) {
+        return <p className="p-4">Cargando...</p>;
+    }
 
+    return (
+        <main className="container">
+            <Link href="/spells" className="text-sm underline opacity-80">
+                ← Volver
+            </Link>
+
+            <div className="mt-4 rounded-2xl p-6" style={{ backgroundColor: "var(--card)" }}>
+                <div className="flex flex-wrap items-center gap-3 mb-4">
+                    <h1 className="text-3xl font-bold">{spell.name}</h1>
+                    <span
+                        className={
+                            "text-xs px-3 py-1 rounded-full border " +
+                            (spell.source === "homerule"
+                                ? "border-emerald-600/40 bg-emerald-100 text-emerald-900"
+                                : "border-slate-400/60 bg-white/60 text-slate-700")
+                        }
+                    >
+                        {spell.source === "homerule" ? "Homerule" : "Oficial"}
+                    </span>
+                    {spell.schoolName && (
+                        <span className="text-xs bg-blue-200 text-blue-900 px-2 py-1 rounded">
+                            {spell.schoolName}
+                        </span>
+                    )}
                 </div>
-            ) : (
-                <p>Loading...</p>
-            )}
-        </div>
-    )
+
+                {spell.originalName && (
+                    <p className="text-xs muted mb-3">{spell.originalName}</p>
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-6">
+                    <div>
+                        <p className="font-semibold">Casting Time</p>
+                        <p>{spell.castingTime || "—"}</p>
+                    </div>
+                    <div>
+                        <p className="font-semibold">Range</p>
+                        <p>{spell.rangeText || "—"}</p>
+                    </div>
+                    <div>
+                        <p className="font-semibold">Duration</p>
+                        <p>{spell.durationText || "—"}</p>
+                    </div>
+                    <div>
+                        <p className="font-semibold">Saving Throw</p>
+                        <p>{spell.savingThrow || "—"}</p>
+                    </div>
+                    <div>
+                        <p className="font-semibold">Spell Resistance</p>
+                        <p>{spell.spellResistance ? "Si" : "No"}</p>
+                    </div>
+                    <div>
+                        <p className="font-semibold">Componentes</p>
+                        <p>
+                            {[
+                                spell.componentsV && "V",
+                                spell.componentsS && "S",
+                                spell.componentsM && "M",
+                            ]
+                                .filter(Boolean)
+                                .join(", ") || "—"}
+                        </p>
+                    </div>
+                </div>
+
+                {spell.areaText && (
+                    <div className="mb-4 text-sm">
+                        <p className="font-semibold">Area</p>
+                        <p>{spell.areaText}</p>
+                    </div>
+                )}
+
+                {spell.materialDesc && (
+                    <div className="mb-4 text-sm">
+                        <p className="font-semibold">Material</p>
+                        <p>{spell.materialDesc}</p>
+                    </div>
+                )}
+
+                {spell.summary && (
+                    <div className="mb-4 text-sm">
+                        <p className="font-semibold">Resumen</p>
+                        <p className="whitespace-pre-line">{spell.summary}</p>
+                    </div>
+                )}
+
+                <div className="text-sm">
+                    <h2 className="text-lg font-semibold">Descripcion</h2>
+                    <p className="whitespace-pre-line">{spell.description}</p>
+                </div>
+            </div>
+        </main>
+    );
 }

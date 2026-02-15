@@ -4,19 +4,22 @@ export interface Spell {
     id?: number;
     name: string;
     originalName?: string;
-    castingTime: string;
-    rangeText: string;
+    schoolCode?: string;
+    schoolName?: string;
+    castingTime?: string;
+    rangeText?: string;
     areaText?: string;
-    durationText: string;
+    durationText?: string;
     savingThrow?: string;
-    spellResistance?: string;
-    componentsV: boolean;
-    componentsS: boolean;
-    componentsM: boolean;
+    spellResistance?: boolean;
+    componentsV?: boolean;
+    componentsS?: boolean;
+    componentsM?: boolean;
     materialDesc?: string;
-    description: string;
+    description?: string;
     summary?: string;
     source?: string;
+    classLevels?: Record<string, number>;
 }
 
 export interface SpellClass {
@@ -39,7 +42,7 @@ export interface SpellClassLevelId {
 
 export interface SpellSchool {
     id?: number;
-    nombre: string;
+    name: string;
     code: string;
 }
 
@@ -48,7 +51,8 @@ export interface SpellSchool {
 
 export const getSpells = async (): Promise<Spell[]> => {
     const response = await api.get('/magic/spells');
-    return response.data;
+    const data = response.data;
+    return Array.isArray(data) ? data : (data?.content || data?.data || []);
 };
 
 export const getSpellById = async (id: number): Promise<Spell> => {
@@ -58,7 +62,16 @@ export const getSpellById = async (id: number): Promise<Spell> => {
 
 export const getSpellClasses = async (): Promise<SpellClass[]> => {
     const response = await api.get('/magic/spell-classes');
-    return response.data;
+    // Manejar diferentes formatos de respuesta
+    const data = response.data;
+    return Array.isArray(data) ? data : (data?.content || data?.data || []);
+}
+
+export const getSpellSchools = async (): Promise<SpellSchool[]> => {
+    const response = await api.get('/magic/spell-schools');
+    // Manejar diferentes formatos de respuesta
+    const data = response.data;
+    return Array.isArray(data) ? data : (data?.content || data?.data || []);
 }
 export const getSpellLevelsByClassId = async (classId: number): Promise<SpellLevel[]> => {
     const res = await api.get<Spell[] | any>(`/magic/spells/by-class/${classId}`);
@@ -92,4 +105,82 @@ export const getSpellLevelsByClassId = async (classId: number): Promise<SpellLev
 export const getBySpellClassAndLevel = async (classId: number, level: number): Promise<SpellLevel[]> => {
     const response = await api.get(`/magic/spells/by-class/${classId}/level/${level}`);
     return response.data;
+};
+
+export const createSpell = async (spell: Spell): Promise<Spell> => {
+    const response = await api.post<Spell>("/magic/spells", spell);
+    return response.data;
+};
+
+export const updateSpell = async (id: number, spell: Spell): Promise<Spell> => {
+    const response = await api.put<Spell>(`/magic/spells/${id}`, spell);
+    return response.data;
+};
+
+export const deleteSpell = async (id: number): Promise<void> => {
+    await api.delete(`/magic/spells/${id}`);
+};
+
+// ===== Homebrew Spells Functions =====
+
+export const listMyHomebrewSpells = async (): Promise<Spell[]> => {
+    const response = await api.get<Spell[] | { content?: Spell[]; data?: Spell[] }>('/magic/spells/mine');
+    const data = response.data;
+    const summaryList = Array.isArray(data) ? data : (data?.content || data?.data || []);
+
+    // Si la respuesta es simplificada, obtener los datos completos de cada conjuro
+    if (summaryList.length > 0 && !summaryList[0].description) {
+        try {
+            const fullSpells = await Promise.all(
+                summaryList.map((spell: Spell) => spell.id ? getSpellById(spell.id) : Promise.resolve(spell))
+            );
+            return fullSpells;
+        } catch (err) {
+            console.error("Error obteniendo datos completos de conjuros:", err);
+            return summaryList;
+        }
+    }
+
+    return summaryList;
+};
+
+export const addHomebrewSpellToCampaign = async (
+    spellId: number,
+    campaignId: number
+): Promise<void> => {
+    await api.post(`/magic/spells/${spellId}/campaigns/${campaignId}`);
+};
+
+export const listHomebrewSpellsByCampaign = async (
+    campaignId: number
+): Promise<Spell[]> => {
+    const response = await api.get<Spell[] | { content?: Spell[]; data?: Spell[] }>(
+        `/magic/spells/campaigns/${campaignId}/homebrew`
+    );
+    const data = response.data;
+    const summaryList = Array.isArray(data) ? data : (data?.content || data?.data || []);
+
+    // Si la respuesta es simplificada, obtener los datos completos de cada conjuro
+    if (summaryList.length > 0 && !summaryList[0].description) {
+        try {
+            const fullSpells = await Promise.all(
+                summaryList.map((spell: Spell) => spell.id ? getSpellById(spell.id) : Promise.resolve(spell))
+            );
+            return fullSpells;
+        } catch (err) {
+            console.error("Error obteniendo datos completos de conjuros de campaña:", err);
+            return summaryList;
+        }
+    }
+
+    return summaryList;
+};
+
+export const removeHomebrewSpellFromCampaign = async (
+    campaignId: number,
+    spellId: number
+): Promise<void> => {
+    await api.delete(
+        `/magic/spells/campaigns/${campaignId}/${spellId}`
+    );
 };
