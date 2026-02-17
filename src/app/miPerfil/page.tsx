@@ -1,38 +1,104 @@
 "use client";
 
-import { AvatarUploader } from "@/components/AvatarUploader";
+import { uploadMyAvatar } from "@/api/imageUpload";
 import HomebrewFeatsManager from "@/components/Homebrew/HomebrewFeatsManager";
 import HomebrewRulesManager from "@/components/Homebrew/HomebrewRulesManager";
 import HomebrewSpellsManager from "@/components/Homebrew/HomebrewSpellsManager";
-import { useState } from "react";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useEffect, useState } from "react";
+
+type ProfileData = {
+    email: string;
+    username: string;
+    avatarUrl: string | null;
+    campanasCreadas: number;
+    campanasJugadas: number;
+};
+
+const DEFAULT_PROFILE: ProfileData = {
+    email: "aventurero@goblinmaster.com",
+    username: "dungeon_master_01",
+    avatarUrl: null,
+    campanasCreadas: 12,
+    campanasJugadas: 28,
+};
 
 export default function MiPerfilPage() {
+    const { user, hydrate, setUser } = useAuthStore();
     const [isEditing, setIsEditing] = useState(false);
-    const [userData, setUserData] = useState({
-        nombre: "Aventurero",
-        email: "aventurero@goblinmaster.com",
-        username: "dungeon_master_01",
-        bio: "Amante de las aventuras épicas y las batallas estratégicas. Game Master desde hace 5 años.",
-        nivel: "Master Experimentado",
-        campanasCreadas: 12,
-        campanasJugadas: 28,
-    });
+    const [userData, setUserData] = useState<ProfileData>(DEFAULT_PROFILE);
+    const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+    const [avatarLoading, setAvatarLoading] = useState(false);
+    const [avatarMessage, setAvatarMessage] = useState<{
+        type: "success" | "error";
+        text: string;
+    } | null>(null);
 
     const [editForm, setEditForm] = useState(userData);
+
+    useEffect(() => {
+        hydrate();
+    }, [hydrate]);
+
+    useEffect(() => {
+        if (!user) return;
+
+        const mappedProfile: ProfileData = {
+            ...DEFAULT_PROFILE,
+            username: user.username || DEFAULT_PROFILE.username,
+            email: user.email || DEFAULT_PROFILE.email,
+            avatarUrl: user.avatar_url || null,
+        };
+
+        setUserData(mappedProfile);
+        setEditForm(mappedProfile);
+    }, [user]);
+
+    useEffect(() => {
+        return () => {
+            if (avatarPreview) {
+                URL.revokeObjectURL(avatarPreview);
+            }
+        };
+    }, [avatarPreview]);
 
     const handleEdit = () => {
         setIsEditing(true);
         setEditForm(userData);
+        setAvatarMessage(null);
     };
 
     const handleSave = () => {
         setUserData(editForm);
+
+        if (user) {
+            setUser({
+                ...user,
+                username: editForm.username,
+                email: editForm.email,
+                avatar_url: editForm.avatarUrl,
+            });
+        }
+
         setIsEditing(false);
+        setSelectedAvatar(null);
+        if (avatarPreview) {
+            URL.revokeObjectURL(avatarPreview);
+            setAvatarPreview(null);
+        }
     };
 
     const handleCancel = () => {
         setEditForm(userData);
         setIsEditing(false);
+        setSelectedAvatar(null);
+        setAvatarMessage(null);
+
+        if (avatarPreview) {
+            URL.revokeObjectURL(avatarPreview);
+            setAvatarPreview(null);
+        }
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -41,6 +107,61 @@ export default function MiPerfilPage() {
             [e.target.name]: e.target.value,
         });
     };
+
+    const handleAvatarFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (avatarPreview) {
+            URL.revokeObjectURL(avatarPreview);
+        }
+
+        const objectUrl = URL.createObjectURL(file);
+        setAvatarPreview(objectUrl);
+        setSelectedAvatar(file);
+        setAvatarMessage(null);
+    };
+
+    const handleAvatarUpload = async () => {
+        if (!selectedAvatar) {
+            setAvatarMessage({ type: "error", text: "Seleccioná una imagen antes de actualizar la foto." });
+            return;
+        }
+
+        setAvatarLoading(true);
+        setAvatarMessage(null);
+
+        try {
+            const result = await uploadMyAvatar(selectedAvatar);
+
+            setUserData((prev) => ({ ...prev, avatarUrl: result.avatarUrl }));
+            setEditForm((prev) => ({ ...prev, avatarUrl: result.avatarUrl }));
+
+            if (user) {
+                setUser({
+                    ...user,
+                    avatar_url: result.avatarUrl,
+                });
+            }
+
+            setSelectedAvatar(null);
+            if (avatarPreview) {
+                URL.revokeObjectURL(avatarPreview);
+                setAvatarPreview(null);
+            }
+
+            setAvatarMessage({ type: "success", text: "Foto de perfil actualizada correctamente." });
+        } catch (error) {
+            setAvatarMessage({
+                type: "error",
+                text: error instanceof Error ? error.message : "No se pudo actualizar la foto de perfil.",
+            });
+        } finally {
+            setAvatarLoading(false);
+        }
+    };
+
+    const fallbackInitial = (userData.username || "?").charAt(0).toUpperCase();
 
     return (
         <div className="container">
@@ -55,26 +176,26 @@ export default function MiPerfilPage() {
             <div className="max-w-3xl mx-auto">
                 {/* Avatar Section */}
                 <div className="flex flex-col items-center mb-8 p-6 rounded-2xl" style={{ backgroundColor: "var(--card)" }}>
-                    <div
-                        className="w-32 h-32 rounded-full mb-4 flex items-center justify-center text-6xl font-bold"
-                        style={{
-                            backgroundColor: "var(--olive-700)",
-                            color: "white",
-                        }}
-                    >
-                        {userData.nombre.charAt(0).toUpperCase()}
-                    </div>
-                    <h2 className="text-2xl font-bold mb-1">{userData.nombre}</h2>
+                    {userData.avatarUrl ? (
+                        <img
+                            src={userData.avatarUrl}
+                            alt="Avatar de usuario"
+                            className="w-32 h-32 rounded-full mb-4 object-cover border-4"
+                            style={{ borderColor: "var(--olive-700)" }}
+                        />
+                    ) : (
+                        <div
+                            className="w-32 h-32 rounded-full mb-4 flex items-center justify-center text-6xl font-bold"
+                            style={{
+                                backgroundColor: "var(--olive-700)",
+                                color: "white",
+                            }}
+                        >
+                            {fallbackInitial}
+                        </div>
+                    )}
+                    <h2 className="text-2xl font-bold mb-1">{userData.username}</h2>
                     <p className="text-sm muted mb-2">@{userData.username}</p>
-                    <span
-                        className="px-4 py-1 rounded-full text-sm font-semibold"
-                        style={{
-                            backgroundColor: "var(--olive-500)",
-                            color: "var(--fg)",
-                        }}
-                    >
-                        {userData.nivel}
-                    </span>
                 </div>
 
                 {/* Stats Section */}
@@ -116,14 +237,47 @@ export default function MiPerfilPage() {
                     {isEditing ? (
                         <form className="space-y-4">
                             <div className="modal-field">
-                                <label className="font-semibold">Nombre</label>
-                                <input
-                                    type="text"
-                                    name="nombre"
-                                    value={editForm.nombre}
-                                    onChange={handleChange}
-                                    className="modal-input"
-                                />
+                                <label className="font-semibold">Foto de perfil</label>
+
+                                {(avatarPreview || editForm.avatarUrl) && (
+                                    <div className="mb-3">
+                                        <img
+                                            src={avatarPreview || editForm.avatarUrl || ""}
+                                            alt="Preview avatar"
+                                            className="w-24 h-24 rounded-full object-cover border-2"
+                                            style={{ borderColor: "var(--olive-700)" }}
+                                        />
+                                    </div>
+                                )}
+
+                                <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
+                                    <input
+                                        type="file"
+                                        accept="image/jpeg,image/png,image/webp"
+                                        onChange={handleAvatarFileSelect}
+                                        disabled={avatarLoading}
+                                        className="modal-input"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={handleAvatarUpload}
+                                        disabled={!selectedAvatar || avatarLoading}
+                                        className="btn btn-primary"
+                                    >
+                                        {avatarLoading ? "Subiendo..." : "Actualizar Foto"}
+                                    </button>
+                                </div>
+
+                                <p className="text-xs muted mt-2">Máximo 5MB • Formatos: JPEG, PNG, WebP</p>
+
+                                {avatarMessage && (
+                                    <p
+                                        className="text-sm mt-2"
+                                        style={{ color: avatarMessage.type === "success" ? "#15803d" : "#dc2626" }}
+                                    >
+                                        {avatarMessage.text}
+                                    </p>
+                                )}
                             </div>
 
                             <div className="modal-field">
@@ -145,17 +299,6 @@ export default function MiPerfilPage() {
                                     value={editForm.email}
                                     onChange={handleChange}
                                     className="modal-input"
-                                />
-                            </div>
-
-                            <div className="modal-field">
-                                <label className="font-semibold">Biografía</label>
-                                <textarea
-                                    name="bio"
-                                    value={editForm.bio}
-                                    onChange={handleChange}
-                                    rows={4}
-                                    className="modal-input resize-none"
                                 />
                             </div>
 
@@ -182,7 +325,7 @@ export default function MiPerfilPage() {
                                 <div className="text-sm font-semibold mb-1" style={{ color: "var(--olive-900)" }}>
                                     Nombre
                                 </div>
-                                <div className="text-base">{userData.nombre}</div>
+                                <div className="text-base">{userData.username}</div>
                             </div>
 
                             <div>
@@ -197,13 +340,6 @@ export default function MiPerfilPage() {
                                     Email
                                 </div>
                                 <div className="text-base">{userData.email}</div>
-                            </div>
-
-                            <div>
-                                <div className="text-sm font-semibold mb-1" style={{ color: "var(--olive-900)" }}>
-                                    Biografía
-                                </div>
-                                <div className="text-base">{userData.bio}</div>
                             </div>
                         </div>
                     )}
@@ -221,28 +357,6 @@ export default function MiPerfilPage() {
                         <HomebrewRulesManager />
                         <HomebrewFeatsManager />
                         <HomebrewSpellsManager />
-                    </div>
-                </div>
-
-                {/* Danger Zone */}
-                <div
-                    className="p-6 rounded-2xl border-2"
-                    style={{
-                        backgroundColor: "var(--card)",
-                        borderColor: "#dc2626",
-                    }}
-                >
-                    <h3 className="sectionTitle text-red-600">Zona de Peligro</h3>
-                    <p className="text-sm mb-4 muted">
-                        Las siguientes acciones son permanentes y no se pueden deshacer.
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-3">
-                        <button className="btn btn-outline" style={{ borderColor: "#dc2626", color: "#dc2626" }}>
-                            Cambiar Contraseña
-                        </button>
-                        <button className="btn btn-danger">
-                            Eliminar Cuenta
-                        </button>
                     </div>
                 </div>
             </div>

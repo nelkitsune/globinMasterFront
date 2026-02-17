@@ -22,6 +22,9 @@ export interface Feat {
   source?: string;
   tipo: string[];            // <-- AJUSTADO A ARRAY
   prereqGroups?: PrereqUI[]; // <-- UI "aplanada"
+  ownerUserId?: number | null;
+  ownerUsername?: string | null;
+  ownerUserCode?: string | null;
 }
 
 // ==== Tipos de API (del punto 1) ====
@@ -66,6 +69,26 @@ export interface ApiFeat {
   special?: string | null;
   tipo: string[];
   prereqGroups: ApiPrereqGroup[];
+  ownerUserId?: number | null;
+  owner_user_id?: number | null;
+  userId?: number | null;
+  user_id?: number | null;
+  ownerUsername?: string | null;
+  owner_username?: string | null;
+  username?: string | null;
+  ownerUserCode?: string | null;
+  owner_user_code?: string | null;
+  user_code?: string | null;
+  createdBy?: {
+    id?: number | null;
+    username?: string | null;
+    user_code?: string | null;
+  } | null;
+  creator?: {
+    id?: number | null;
+    username?: string | null;
+    user_code?: string | null;
+  } | null;
 }
 
 // ==== Helpers de mapeo ====
@@ -154,6 +177,9 @@ export const mapApiFeatToUI = (f: ApiFeat, idToName?: Record<number, string>): F
   source: f.source ?? undefined,
   tipo: f.tipo ?? [],
   prereqGroups: flattenPrereqs(f.prereqGroups, idToName),
+  ownerUserId: f.ownerUserId ?? f.owner_user_id ?? f.userId ?? f.user_id ?? f.createdBy?.id ?? f.creator?.id ?? null,
+  ownerUsername: f.ownerUsername ?? f.owner_username ?? f.username ?? f.createdBy?.username ?? f.creator?.username ?? null,
+  ownerUserCode: f.ownerUserCode ?? f.owner_user_code ?? f.user_code ?? f.createdBy?.user_code ?? f.creator?.user_code ?? null,
 });
 
 // ==== Lecturas (devuelven UI) ====

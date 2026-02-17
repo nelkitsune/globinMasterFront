@@ -10,6 +10,7 @@ import {
     updateFeat,
 } from "@/api/featsApi";
 import { DeleteConfirmationModal } from "@/components/Campaing/DeleteConfirmationModal";
+import { useAuthStore } from "@/store/useAuthStore";
 
 const FEAT_TIPOS = [
     "ARTISTICAS",
@@ -53,6 +54,7 @@ const toFeatPayload = (form: FeatFormState, id?: number): Feat => ({
 });
 
 export default function HomebrewFeatsManager() {
+    const { user } = useAuthStore();
     const [items, setItems] = useState<Feat[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -64,6 +66,28 @@ export default function HomebrewFeatsManager() {
     const [isDeleting, setIsDeleting] = useState(false);
 
     const isEditMode = useMemo(() => Boolean(editingFeat), [editingFeat]);
+
+    const normalize = (value?: string | null) => (value || "").trim().toLowerCase();
+
+    const isOwnedByCurrentUser = (feat: Feat) => {
+        if (!user) return true;
+
+        if (user.id && feat.ownerUserId) {
+            return user.id === feat.ownerUserId;
+        }
+
+        if (feat.ownerUserCode && user.user_code) {
+            return normalize(feat.ownerUserCode) === normalize(user.user_code);
+        }
+
+        if (feat.ownerUsername && user.username) {
+            return normalize(feat.ownerUsername) === normalize(user.username);
+        }
+
+        return true;
+    };
+
+    const visibleItems = useMemo(() => items.filter(isOwnedByCurrentUser), [items, user]);
 
     const loadFeats = async () => {
         setLoading(true);
@@ -188,13 +212,13 @@ export default function HomebrewFeatsManager() {
 
             {loading ? (
                 <p className="text-sm muted">Cargando dotes...</p>
-            ) : items.length === 0 ? (
+            ) : visibleItems.length === 0 ? (
                 <p className="text-sm muted">
                     Aun no tienes dotes caseras creadas.
                 </p>
             ) : (
                 <ul className="space-y-3">
-                    {items.map((feat, index) => (
+                    {visibleItems.map((feat, index) => (
                         <li
                             key={feat.id ?? `${feat.code}-${feat.name}-${index}`}
                             className="rounded-xl border border-black/10 bg-[color:var(--olive-100)]/40 p-4"

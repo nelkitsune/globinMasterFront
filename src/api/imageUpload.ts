@@ -61,11 +61,13 @@ export async function uploadMyAvatar(
             },
         });
 
-        if (!response.data || !response.data.avatarUrl) {
+        const avatarUrl = response.data?.avatarUrl || response.data?.avatar_url;
+
+        if (!response.data || !avatarUrl) {
             throw new Error("Respuesta inválida del servidor");
         }
 
-        return { avatarUrl: response.data.avatarUrl };
+        return { avatarUrl };
     } catch (error) {
         // Si es un AxiosError con respuesta del servidor, usar el mensaje
         if (error instanceof Error) {

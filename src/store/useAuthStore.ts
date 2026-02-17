@@ -8,6 +8,12 @@ interface User {
   id: number;
   username: string;
   email: string;
+  biography?: string | null;
+  avatar_url?: string | null;
+  avatar_public_id?: string | null;
+  role?: string;
+  user_code?: string | null;
+  active?: number | boolean;
 }
 
 interface AuthState {
@@ -23,6 +29,7 @@ interface AuthState {
   register: (payload: RegisterPayload) => Promise<void>;
   logout: () => void;
   clearError: () => void;
+  setUser: (user: User | null) => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -194,4 +201,15 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   clearError: () => set({ error: null }),
+
+  setUser: (user: User | null) => {
+    if (typeof window !== "undefined") {
+      if (user) {
+        localStorage.setItem("user", JSON.stringify(user));
+      } else {
+        localStorage.removeItem("user");
+      }
+    }
+    set({ user });
+  },
 }));
