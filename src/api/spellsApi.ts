@@ -20,6 +20,9 @@ export interface Spell {
     summary?: string;
     source?: string;
     classLevels?: Record<string, number>;
+    ownerUserId?: number | null;
+    ownerUsername?: string | null;
+    ownerUserCode?: string | null;
 }
 
 export interface SpellClass {

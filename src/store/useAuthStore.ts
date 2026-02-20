@@ -4,6 +4,55 @@ import { authEndpoints, LoginPayload, RegisterPayload } from "@/lib/authApiClien
 import { useCampaignStore } from "@/store/useCampaignStore";
 import { useIniciativaStore } from "@/store/useIniciativaStore";
 
+// Helper: Decodificar JWT sin librerías externas
+const decodeJWT = (token: string): any => {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+
+    const payload = parts[1];
+    const decoded = atob(payload);
+    return JSON.parse(decoded);
+  } catch (e) {
+    console.error("Error decodificando JWT:", e);
+    return null;
+  }
+};
+
+const normalizeRole = (role?: string | null) => {
+  if (!role) return undefined;
+  return String(role).trim().toUpperCase();
+};
+
+const extractRoleFromUnknown = (source: any): string | undefined => {
+  if (!source) return undefined;
+
+  const directRole = normalizeRole(source.role);
+  if (directRole) return directRole;
+
+  if (Array.isArray(source.roles) && source.roles.length > 0) {
+    const firstRole = normalizeRole(source.roles[0]);
+    if (firstRole) return firstRole.replace(/^ROLE_/, "");
+  }
+
+  if (Array.isArray(source.authorities) && source.authorities.length > 0) {
+    const authority = source.authorities.find((value: unknown) =>
+      String(value).toUpperCase().includes("ADMIN")
+    );
+    if (authority) return "ADMIN";
+  }
+
+  if (source.isAdmin === true) return "ADMIN";
+
+  const username = String(source.username || "").trim().toLowerCase();
+  const email = String(source.email || "").trim().toLowerCase();
+  if (username === "admin" || email.startsWith("admin@")) {
+    return "ADMIN";
+  }
+
+  return undefined;
+};
+
 interface User {
   id: number;
   username: string;
@@ -57,22 +106,81 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
 
     if (token) {
+      // Decodificar JWT para extraer role si no está en el user
+      const decodedJWT = decodeJWT(token);
+
+      // Validar si el token tiene claim role (tokens nuevos post-fix backend)
+      if (decodedJWT && !decodedJWT.role && user?.username === "admin") {
+        console.warn("[AUTH] Token antiguo sin claim role detectado. Se requiere nuevo login.");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        set({ token: null, user: null, isAuthenticated: false });
+        return;
+      }
+
+      const jwtRole = extractRoleFromUnknown(decodedJWT);
+
+      if (user?.role) {
+        user.role = normalizeRole(user.role);
+      }
+
+      if (user && !user.role) {
+        const inferredRoleFromUser = extractRoleFromUnknown(user);
+        if (inferredRoleFromUser) {
+          user.role = inferredRoleFromUser;
+          console.log("[AUTH][hydrate] role inferido desde user local:", inferredRoleFromUser);
+        }
+      }
+
+      if (jwtRole && (!user || !user.role)) {
+        if (!user) user = {};
+        user.role = jwtRole;
+        console.log("[AUTH][hydrate] role extraído del JWT:", decodedJWT?.role, "=>", jwtRole);
+      }
+
+      console.log("[AUTH][hydrate] snapshot inicial", {
+        hasToken: !!token,
+        localStorageRole: user?.role,
+        jwtRole,
+      });
+
       set({
         token,
         user,
         isAuthenticated: true
       });
-      // Si no hay user guardado, pedirlo al backend
-      if (!user) {
+
+      // Si no hay user guardado o no tiene role después de decodificar JWT,
+      // intentar obtener del backend
+      if (!user || !user.role) {
         authEndpoints.getCurrentUser()
           .then((currentUser) => {
+            currentUser.role = extractRoleFromUnknown(currentUser);
+            console.log("User completo desde /auth/me en hydrate:", currentUser);
+            // Agregar role del JWT si está disponible
+            if (jwtRole && !currentUser.role) {
+              currentUser.role = jwtRole;
+            }
+
+            if (!currentUser.role) {
+              const inferredRole = extractRoleFromUnknown(currentUser);
+              if (inferredRole) {
+                currentUser.role = inferredRole;
+                console.log("[AUTH][hydrate] role inferido fallback:", inferredRole);
+              }
+            }
+
+            console.log("[AUTH][hydrate] role final desde backend:", currentUser.role);
             set({ user: currentUser });
             localStorage.setItem("user", JSON.stringify(currentUser));
           })
           .catch((err) => {
-            console.error("Error hydrating user from /auth/me:", err);
-            // Si falla (401), limpiar sesión
-            if (err?.response?.status === 401) {
+            const status = err?.response?.status;
+            if (status !== 401 && status !== 403) {
+              console.error("Error hydrating user from /auth/me:", err);
+            }
+            // Si falla (401/403), limpiar sesión
+            if (status === 401 || status === 403) {
               localStorage.removeItem("token");
               localStorage.removeItem("user");
               set({ token: null, user: null, isAuthenticated: false });
@@ -81,19 +189,9 @@ export const useAuthStore = create<AuthState>((set) => ({
       }
     } else if (rawToken) {
       localStorage.removeItem("token");
-
-      // Opcionalmente cargar datos del usuario si el endpoint existe
-      // authEndpoints.getCurrentUser()
-      //   .then((user) => set({ user }))
-      //   .catch(() => {
-      //     // Si falla, el token era inválido
-      //     localStorage.removeItem("token");
-      //     set({ token: null, isAuthenticated: false });
-      //   });
     }
   },
 
-  // Login
   login: async (payload: LoginPayload) => {
     set({ loading: true, error: null });
     try {
@@ -106,13 +204,51 @@ export const useAuthStore = create<AuthState>((set) => ({
       }
 
       localStorage.setItem("token", token);
-      if (response.user) {
-        localStorage.setItem("user", JSON.stringify(response.user));
+
+      // Decodificar JWT para extraer el role
+      let user = response.user || null;
+      const decodedJWT = decodeJWT(token);
+      const jwtRole = extractRoleFromUnknown(decodedJWT);
+      if (user?.role) {
+        user.role = normalizeRole(user.role);
+      }
+      if (user && !user.role) {
+        user.role = extractRoleFromUnknown(user);
+      }
+      console.log("JWT decodificado:", decodedJWT);
+      console.log("[AUTH][login] role backend:", response.user?.role, "| role jwt:", decodedJWT?.role, "=>", jwtRole);
+
+      if (jwtRole) {
+        // Si el JWT trae role, agregarlo al user
+        if (!user) user = {};
+        user.role = jwtRole;
+        console.log("Role extraído del JWT:", decodedJWT?.role, "=>", jwtRole);
+      } else if (user && !user.role) {
+        // Si no está en JWT, intentar obtener de /auth/me
+        try {
+          console.log("No hay role en JWT, obteniendo datos de /auth/me");
+          const fullUser = await authEndpoints.getCurrentUser();
+          fullUser.role = extractRoleFromUnknown(fullUser);
+          user = fullUser;
+          console.log("User completo desde /auth/me:", user);
+        } catch (err) {
+          const status = (err as any)?.response?.status;
+          if (status !== 401 && status !== 403) {
+            console.error("Error obteniendo user completo:", err);
+          }
+          // Continuar mesmo sin role (fallback)
+        }
+      }
+
+      if (user) {
+        user.role = extractRoleFromUnknown(user);
+        console.log("[AUTH][login] role final guardado:", user.role);
+        localStorage.setItem("user", JSON.stringify(user));
       }
 
       set({
         token,
-        user: response.user || null,
+        user,
         isAuthenticated: true,
         loading: false,
         error: null,
@@ -147,28 +283,56 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       // Auto-login después del registro
       localStorage.setItem("token", token);
-      if (response.user) {
-        localStorage.setItem("user", JSON.stringify(response.user));
+
+      // Decodificar JWT para extraer el role
+      let user = response.user || null;
+      const decodedJWT = decodeJWT(token);
+      const jwtRole = extractRoleFromUnknown(decodedJWT);
+      if (user?.role) {
+        user.role = normalizeRole(user.role);
+      }
+      if (user && !user.role) {
+        user.role = extractRoleFromUnknown(user);
+      }
+      console.log("JWT decodificado en register:", decodedJWT);
+      console.log("[AUTH][register] role backend:", response.user?.role, "| role jwt:", decodedJWT?.role, "=>", jwtRole);
+
+      if (jwtRole) {
+        // Si el JWT trae role, agregarlo al user
+        if (!user) user = {};
+        user.role = jwtRole;
+        console.log("Role extraído del JWT:", decodedJWT?.role, "=>", jwtRole);
+      } else if (!user || !user.role) {
+        // Si no está en JWT, intentar obtener de /auth/me
+        try {
+          console.log("No hay role en JWT/response, obteniendo datos de /auth/me");
+          const currentUser = await authEndpoints.getCurrentUser();
+          currentUser.role = extractRoleFromUnknown(currentUser);
+          user = currentUser;
+          console.log("User completo desde /auth/me:", user);
+        } catch (err) {
+          const status = (err as any)?.response?.status;
+          if (status !== 401 && status !== 403) {
+            console.error("Error obteniendo user completo:", err);
+          }
+          // Continuar con lo que tenemos
+        }
+      }
+
+      if (user) {
+        user.role = extractRoleFromUnknown(user);
+        console.log("[AUTH][register] role final guardado:", user.role);
+        localStorage.setItem("user", JSON.stringify(user));
       }
 
       set({
         token,
-        user: response.user || null,
+        user,
         isAuthenticated: true,
         loading: false,
         error: null,
       });
 
-      // Si el login no devuelve user, pedirlo a /auth/me
-      if (!response.user) {
-        try {
-          const currentUser = await authEndpoints.getCurrentUser();
-          localStorage.setItem("user", JSON.stringify(currentUser));
-          set({ user: currentUser });
-        } catch (fetchError) {
-          console.error("Error fetching current user after login:", fetchError);
-        }
-      }
     } catch (error: any) {
       console.error("Register error:", error);
       const message = error?.response?.data?.message
@@ -203,13 +367,20 @@ export const useAuthStore = create<AuthState>((set) => ({
   clearError: () => set({ error: null }),
 
   setUser: (user: User | null) => {
+    const normalizedUser = user
+      ? {
+        ...user,
+        role: extractRoleFromUnknown(user),
+      }
+      : null;
+
     if (typeof window !== "undefined") {
-      if (user) {
-        localStorage.setItem("user", JSON.stringify(user));
+      if (normalizedUser) {
+        localStorage.setItem("user", JSON.stringify(normalizedUser));
       } else {
         localStorage.removeItem("user");
       }
     }
-    set({ user });
+    set({ user: normalizedUser });
   },
 }));

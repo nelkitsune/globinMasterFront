@@ -44,8 +44,15 @@ const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 authApi.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    console.error("❌ API Error:", error?.response?.status, error?.config?.url);
-    console.error("Response data:", error?.response?.data);
+    const status = error?.response?.status;
+    const requestUrl = error?.config?.url ?? "";
+    const isAuthMeRequest = requestUrl.includes("/auth/me");
+    const isExpectedAuthError = isAuthMeRequest && (status === 401 || status === 403);
+
+    if (!isExpectedAuthError) {
+      console.error("❌ API Error:", status, requestUrl);
+      console.error("Response data:", error?.response?.data);
+    }
 
     const config = error?.config as (typeof error.config & { _retryCount?: number }) | undefined;
     const isNetworkError = !error?.response;
@@ -59,7 +66,7 @@ authApi.interceptors.response.use(
     }
 
     // Si es 401, logout automático
-    if (error?.response?.status === 401) {
+    if (status === 401) {
       if (typeof window !== "undefined") {
         localStorage.removeItem("token");
         window.location.href = "/login";
@@ -88,6 +95,9 @@ export interface AuthResponse {
     id: number;
     username: string;
     email: string;
+    role?: string;
+    avatar_url?: string;
+    user_code?: string;
   };
 }
 

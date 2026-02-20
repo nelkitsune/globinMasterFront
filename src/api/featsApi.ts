@@ -1,5 +1,20 @@
 import { api } from "./axiosInstance";
 
+// ==== Tipos de respuesta paginada ====
+export interface PaginatedResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+  empty: boolean;
+  first: boolean;
+  last: boolean;
+}
+
+// ==== Enums de tipos de dotes ====
+export type FeatType = "COMBATE" | "RACIAL" | "GENERAL" | "MAGIA" | "METAMAGIA";
+
 // ==== Modelo UI preexistente ====
 
 export interface PrereqUI {
@@ -21,6 +36,7 @@ export interface Feat {
   special?: string;
   source?: string;
   tipo: string[];            // <-- AJUSTADO A ARRAY
+  normal?: string;           // <-- Texto normal opcional
   prereqGroups?: PrereqUI[]; // <-- UI "aplanada"
   ownerUserId?: number | null;
   ownerUsername?: string | null;
@@ -62,11 +78,16 @@ export interface ApiFeat {
   id: number;
   name: string;
   originalName?: string;
+  original_name?: string;
   code: string;
   descripcion: string;
+  description?: string;
   source?: string | null;
   benefit: string;
+  beneficio?: string;
   special?: string | null;
+  especial?: string | null;
+  normal?: string | null;
   tipo: string[];
   prereqGroups: ApiPrereqGroup[];
   ownerUserId?: number | null;
@@ -170,12 +191,13 @@ export const mapApiFeatToUI = (f: ApiFeat, idToName?: Record<number, string>): F
   id: f.id,
   name: f.name,
   code: f.code,
-  originalName: f.originalName,
-  descripcion: f.descripcion,
-  benefit: f.benefit,
-  special: f.special ?? undefined,
+  originalName: f.originalName ?? f.original_name,
+  descripcion: f.descripcion ?? f.description ?? "",
+  benefit: f.benefit ?? f.beneficio ?? "",
+  special: f.special ?? f.especial ?? undefined,
+  normal: f.normal ?? undefined,
   source: f.source ?? undefined,
-  tipo: f.tipo ?? [],
+  tipo: Array.isArray(f.tipo) ? f.tipo : (f.tipo ? [f.tipo] : []),
   prereqGroups: flattenPrereqs(f.prereqGroups, idToName),
   ownerUserId: f.ownerUserId ?? f.owner_user_id ?? f.userId ?? f.user_id ?? f.createdBy?.id ?? f.creator?.id ?? null,
   ownerUsername: f.ownerUsername ?? f.owner_username ?? f.username ?? f.createdBy?.username ?? f.creator?.username ?? null,
@@ -184,12 +206,30 @@ export const mapApiFeatToUI = (f: ApiFeat, idToName?: Record<number, string>): F
 
 // ==== Lecturas (devuelven UI) ====
 
-// Obtener todas las feats: descargamos la lista, construimos id->name y mapeamos
-export const getFeats = async (): Promise<Feat[]> => {
-  const res = await api.get<ApiFeat[]>("/feats");
-  const apiFeats = res.data ?? [];
-  const idToName: Record<number, string> = Object.fromEntries(apiFeats.map(f => [f.id, f.name]));
-  return apiFeats.map(f => mapApiFeatToUI(f, idToName));
+// Obtener feats paginadas con filtros
+export const getFeats = async (
+  page: number = 0,
+  size: number = 20,
+  types?: FeatType[]
+): Promise<PaginatedResponse<Feat>> => {
+  const params = new URLSearchParams();
+  params.append("page", String(page));
+  params.append("size", String(Math.min(size, 100))); // máximo 100
+  params.append("sort", "name,asc");
+
+  if (types && types.length > 0) {
+    params.append("tipos", types.join(","));
+  }
+
+  const res = await api.get<PaginatedResponse<ApiFeat>>(`/feats?${params}`);
+  const idToName: Record<number, string> = Object.fromEntries(
+    (res.data.content ?? []).map(f => [f.id, f.name])
+  );
+
+  return {
+    ...res.data,
+    content: (res.data.content ?? []).map(f => mapApiFeatToUI(f, idToName)),
+  };
 };
 
 // Helper: pide nombres de feats por ids (usa peticiones individuales)

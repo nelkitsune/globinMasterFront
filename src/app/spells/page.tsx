@@ -18,25 +18,36 @@ export default function SpellListPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  if (loading) return <p className="p-4 text-center">Cargando clases...</p>;
 
-
-  if (loading) return <p className="p-4">Cargando...</p>;
   return (
-    <>
-      <div className="container">
-        <h1 className="text-4xl font-bold mb-4 p-4 text-center">Lista de clases lanzadoras de conjuros</h1>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-15">
-          {spellClasses.map((spellClass) => (
-            <Link href={`/spells/class/${spellClass.id}`} key={spellClass.id} className="
-                btn
-                btn-primary
-                w-full
-              ">
-              {spellClass.name}
-            </Link>
-          ))}
-        </div>
+    <div className="container">
+      <div className="text-center mb-8">
+        <h1 className="brand text-4xl mb-2" style={{ color: "var(--olive-900)" }}>
+          Clases Lanzadoras de Conjuros
+        </h1>
+        <p className="muted text-lg">Selecciona una clase para ver sus conjuros</p>
       </div>
-    </>
-  )
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
+        {spellClasses.map((spellClass) => (
+          <Link href={`/spells/class/${spellClass.id}`} key={spellClass.id}>
+            <div
+              className="p-6 rounded-2xl transition-transform hover:shadow-lg hover:scale-105"
+              style={{
+                backgroundColor: "var(--card)",
+                border: "2px solid var(--olive-500)",
+                cursor: "pointer",
+              }}
+            >
+              <h3 className="text-xl font-bold" style={{ color: "var(--olive-900)" }}>
+                {spellClass.name}
+              </h3>
+              <p className="text-sm muted mt-2">Toca para ver conjuros disponibles</p>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
 }
