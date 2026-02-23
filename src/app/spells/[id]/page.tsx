@@ -20,7 +20,7 @@ export default function SpellPage() {
         }).catch(error => {
             console.error("Error fetching spell:", error);
         });
-    }, [])
+    }, [rawId])
     if (!spell) {
         return <p className="p-4">Cargando...</p>;
     }
@@ -49,6 +49,11 @@ export default function SpellPage() {
                             {spell.schoolName}
                         </span>
                     )}
+                    {spell.subschoolName && (
+                        <span className="text-xs bg-indigo-200 text-indigo-900 px-2 py-1 rounded">
+                            {spell.subschoolName}
+                        </span>
+                    )}
                 </div>
 
                 {spell.originalName && (
@@ -58,23 +63,31 @@ export default function SpellPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-6">
                     <div>
                         <p className="font-semibold">Casting Time</p>
-                        <p>{spell.castingTime || "—"}</p>
+                        <p>{spell.tiempoIncantacion || spell.castingTime || "—"}</p>
                     </div>
                     <div>
                         <p className="font-semibold">Range</p>
-                        <p>{spell.rangeText || "—"}</p>
+                        <p>{spell.rango || spell.rangeText || "—"}</p>
                     </div>
                     <div>
                         <p className="font-semibold">Duration</p>
-                        <p>{spell.durationText || "—"}</p>
+                        <p>{spell.duracion || spell.durationText || "—"}</p>
+                    </div>
+                    <div>
+                        <p className="font-semibold">Target</p>
+                        <p>{spell.objetivo || spell.target || "—"}</p>
                     </div>
                     <div>
                         <p className="font-semibold">Saving Throw</p>
-                        <p>{spell.savingThrow || "—"}</p>
+                        <p>{spell.salvacion || spell.savingThrow || "—"}</p>
                     </div>
                     <div>
                         <p className="font-semibold">Spell Resistance</p>
-                        <p>{spell.spellResistance ? "Si" : "No"}</p>
+                        <p>{
+                            typeof spell.resistenciaConjuros === 'string'
+                                ? spell.resistenciaConjuros
+                                : spell.spellResistance ? "Si" : "No"
+                        }</p>
                     </div>
                     <div>
                         <p className="font-semibold">Componentes</p>
@@ -83,6 +96,8 @@ export default function SpellPage() {
                                 spell.componentsV && "V",
                                 spell.componentsS && "S",
                                 spell.componentsM && "M",
+                                spell.componentsF && "F",
+                                spell.componentsDf && "DF",
                             ]
                                 .filter(Boolean)
                                 .join(", ") || "—"}
@@ -104,10 +119,31 @@ export default function SpellPage() {
                     </div>
                 )}
 
+                {spell.focusDesc && (
+                    <div className="mb-4 text-sm">
+                        <p className="font-semibold">Foco</p>
+                        <p>{spell.focusDesc}</p>
+                    </div>
+                )}
+
+                {spell.divineFocusDesc && (
+                    <div className="mb-4 text-sm">
+                        <p className="font-semibold">Foco Divino</p>
+                        <p>{spell.divineFocusDesc}</p>
+                    </div>
+                )}
+
                 {spell.summary && (
                     <div className="mb-4 text-sm">
                         <p className="font-semibold">Resumen</p>
                         <p className="whitespace-pre-line">{spell.summary}</p>
+                    </div>
+                )}
+
+                {spell.source && (
+                    <div className="mb-4 text-sm">
+                        <p className="font-semibold">Fuente</p>
+                        <p>{spell.source}</p>
                     </div>
                 )}
 

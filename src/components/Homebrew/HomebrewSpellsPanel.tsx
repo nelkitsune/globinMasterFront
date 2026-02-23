@@ -77,6 +77,14 @@ export const HomebrewSpellsPanel: React.FC<HomebrewSpellsPanelProps> = ({
                                         {spell.originalName && (
                                             <p className="text-xs text-gray-500">{spell.originalName}</p>
                                         )}
+                                        <p className="text-xs text-gray-500">
+                                            {[spell.schoolName || spell.schoolCode, spell.subschoolName]
+                                                .filter(Boolean)
+                                                .join(" · ") || "Sin escuela"}
+                                        </p>
+                                        {spell.target && (
+                                            <p className="text-xs text-gray-500 line-clamp-1">Objetivo: {spell.target}</p>
+                                        )}
                                     </div>
                                     <button
                                         onClick={() => handleAddSpell(spell.id!)}
@@ -111,6 +119,14 @@ export const HomebrewSpellsPanel: React.FC<HomebrewSpellsPanelProps> = ({
                                         <p className="font-medium text-gray-900">{spell.name}</p>
                                         {spell.originalName && (
                                             <p className="text-xs text-gray-500">{spell.originalName}</p>
+                                        )}
+                                        <p className="text-xs text-gray-500">
+                                            {[spell.schoolName || spell.schoolCode, spell.subschoolName]
+                                                .filter(Boolean)
+                                                .join(" · ") || "Sin escuela"}
+                                        </p>
+                                        {spell.target && (
+                                            <p className="text-xs text-gray-500 line-clamp-1">Objetivo: {spell.target}</p>
                                         )}
                                     </div>
                                     <button

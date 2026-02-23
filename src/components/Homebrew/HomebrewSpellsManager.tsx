@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
     Spell,
     SpellClass,
+    SpellSubschool,
     createSpell,
     deleteSpell,
     listMyHomebrewSpells,
@@ -29,13 +30,19 @@ interface SpellFormState {
     areaText: string;
     durationText: string;
     schoolCode: string;
+    subschoolId: string;
+    target: string;
     savingThrow: boolean;
     savingThrowType: string;
     spellResistance: boolean;
     componentsV: boolean;
     componentsS: boolean;
     componentsM: boolean;
+    componentsF: boolean;
+    componentsDf: boolean;
     materialDesc: string;
+    focusDesc: string;
+    divineFocusDesc: string;
     description: string;
     summary: string;
     classLevels: ClassLevel[];
@@ -50,13 +57,19 @@ const emptySpellForm: SpellFormState = {
     areaText: "",
     durationText: "",
     schoolCode: "",
+    subschoolId: "",
+    target: "",
     savingThrow: false,
     savingThrowType: "",
     spellResistance: false,
     componentsV: false,
     componentsS: false,
     componentsM: false,
+    componentsF: false,
+    componentsDf: false,
     materialDesc: "",
+    focusDesc: "",
+    divineFocusDesc: "",
     description: "",
     summary: "",
     classLevels: [],
@@ -65,11 +78,13 @@ const emptySpellForm: SpellFormState = {
 };
 
 const toSpellPayload = (form: SpellFormState, id?: number): any => {
+    const subschoolId = form.subschoolId ? Number(form.subschoolId) : null;
     const payload: any = {
         id,
         name: form.name.trim(),
         originalName: form.name.trim(),
         schoolCode: form.schoolCode,
+        subschoolId: Number.isFinite(subschoolId) ? subschoolId : null,
         castingTime: form.castingTime.trim(),
         rangeText: form.rangeText.trim(),
         durationText: form.durationText.trim(),
@@ -78,15 +93,20 @@ const toSpellPayload = (form: SpellFormState, id?: number): any => {
         componentsV: form.componentsV,
         componentsS: form.componentsS,
         componentsM: form.componentsM,
+        componentsF: form.componentsF,
+        componentsDf: form.componentsDf,
         description: form.description.trim(),
         source: "homerule",
         classLevels: Object.fromEntries(form.classLevels.map(cl => [cl.classCode, cl.level])),
     };
 
     // Agregar campos opcionales solo si tienen valor
-    if (form.areaText.trim()) payload.areaText = form.areaText.trim();
-    if (form.materialDesc.trim()) payload.materialDesc = form.materialDesc.trim();
-    if (form.summary.trim()) payload.summary = form.summary.trim();
+    if (form.areaText?.trim()) payload.areaText = form.areaText.trim();
+    if (form.target?.trim()) payload.target = form.target.trim();
+    if (form.materialDesc?.trim()) payload.materialDesc = form.materialDesc.trim();
+    if (form.focusDesc?.trim()) payload.focusDesc = form.focusDesc.trim();
+    if (form.divineFocusDesc?.trim()) payload.divineFocusDesc = form.divineFocusDesc.trim();
+    if (form.summary?.trim()) payload.summary = form.summary.trim();
 
     return payload;
 };
@@ -107,6 +127,12 @@ export default function HomebrewSpellsManager() {
 
     const [spellSchools, setSpellSchools] = useState<SpellSchool[]>([]);
     const [schoolsLoading, setSchoolsLoading] = useState(false);
+
+    const availableSubschools = useMemo<SpellSubschool[]>(() => {
+        if (!formState.schoolCode) return [];
+        const selectedSchool = spellSchools.find((school) => school.code === formState.schoolCode);
+        return selectedSchool?.subschools || [];
+    }, [spellSchools, formState.schoolCode]);
 
     const isEditMode = useMemo(() => Boolean(editingSpell), [editingSpell]);
 
@@ -187,13 +213,19 @@ export default function HomebrewSpellsManager() {
             areaText: spell.areaText ?? "",
             durationText: spell.durationText ?? "",
             schoolCode: spell.schoolCode ?? "",
+            subschoolId: spell.subschoolId ? String(spell.subschoolId) : "",
+            target: spell.target ?? "",
             savingThrow: Boolean(spell.savingThrow),
             savingThrowType: spell.savingThrow ?? "",
             spellResistance: Boolean(spell.spellResistance),
             componentsV: Boolean(spell.componentsV),
             componentsS: Boolean(spell.componentsS),
             componentsM: Boolean(spell.componentsM),
+            componentsF: Boolean(spell.componentsF),
+            componentsDf: Boolean(spell.componentsDf),
             materialDesc: spell.materialDesc ?? "",
+            focusDesc: spell.focusDesc ?? "",
+            divineFocusDesc: spell.divineFocusDesc ?? "",
             description: spell.description ?? "",
             summary: spell.summary ?? "",
             classLevels: classLevelsArray,
@@ -210,7 +242,12 @@ export default function HomebrewSpellsManager() {
 
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setFormState((prev) => ({ ...prev, [name]: value }));
+        setFormState((prev) => {
+            if (name === "schoolCode") {
+                return { ...prev, schoolCode: value, subschoolId: "" };
+            }
+            return { ...prev, [name]: value };
+        });
     };
 
     const handleCheckbox = (e: ChangeEvent<HTMLInputElement>) => {
@@ -352,6 +389,11 @@ export default function HomebrewSpellsManager() {
                                                 {spell.schoolName}
                                             </span>
                                         )}
+                                        {spell.subschoolName && (
+                                            <span className="text-xs bg-indigo-200 text-indigo-900 px-2 py-1 rounded">
+                                                {spell.subschoolName}
+                                            </span>
+                                        )}
                                     </div>
                                     {spell.originalName && (
                                         <p className="text-xs muted mb-2">{spell.originalName}</p>
@@ -379,8 +421,14 @@ export default function HomebrewSpellsManager() {
                                                     spell.componentsV && "V",
                                                     spell.componentsS && "S",
                                                     spell.componentsM && "M",
+                                                    spell.componentsF && "F",
+                                                    spell.componentsDf && "DF",
                                                 ].filter(Boolean).join(", ") || "—"}
                                             </p>
+                                        </div>
+                                        <div>
+                                            <span className="font-semibold">Objetivo:</span>
+                                            <p className="text-gray-700">{spell.target || "—"}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -456,6 +504,23 @@ export default function HomebrewSpellsManager() {
                                         ))}
                                     </select>
                                 </div>
+                                <div className="modal-field">
+                                    <label className="font-semibold">Subescuela</label>
+                                    <select
+                                        name="subschoolId"
+                                        value={formState.subschoolId}
+                                        onChange={handleChange}
+                                        className="modal-input"
+                                        disabled={!formState.schoolCode || availableSubschools.length === 0}
+                                    >
+                                        <option value="">-- Sin subescuela --</option>
+                                        {availableSubschools.map((subschool) => (
+                                            <option key={subschool.id} value={subschool.id}>
+                                                {subschool.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                     <div className="modal-field">
                                         <label className="font-semibold">Tiempo de lanzamiento *</label>
@@ -485,6 +550,16 @@ export default function HomebrewSpellsManager() {
                                             onChange={handleChange}
                                             className="modal-input"
                                             placeholder="Opcional"
+                                        />
+                                    </div>
+                                    <div className="modal-field">
+                                        <label className="font-semibold">Objetivo</label>
+                                        <input
+                                            name="target"
+                                            value={formState.target}
+                                            onChange={handleChange}
+                                            className="modal-input"
+                                            placeholder="Ej: una criatura"
                                         />
                                     </div>
                                     <div className="modal-field">
@@ -566,6 +641,24 @@ export default function HomebrewSpellsManager() {
                                             />
                                             Material
                                         </label>
+                                        <label className="flex items-center gap-2">
+                                            <input
+                                                type="checkbox"
+                                                name="componentsF"
+                                                checked={formState.componentsF}
+                                                onChange={handleCheckbox}
+                                            />
+                                            Foco
+                                        </label>
+                                        <label className="flex items-center gap-2">
+                                            <input
+                                                type="checkbox"
+                                                name="componentsDf"
+                                                checked={formState.componentsDf}
+                                                onChange={handleCheckbox}
+                                            />
+                                            Foco Divino
+                                        </label>
                                     </div>
                                 </div>
                                 {formState.componentsM && (
@@ -577,6 +670,30 @@ export default function HomebrewSpellsManager() {
                                             onChange={handleChange}
                                             className="modal-input"
                                             placeholder="Describe los materiales necesarios"
+                                        />
+                                    </div>
+                                )}
+                                {formState.componentsF && (
+                                    <div className="modal-field">
+                                        <label className="font-semibold">Foco</label>
+                                        <input
+                                            name="focusDesc"
+                                            value={formState.focusDesc}
+                                            onChange={handleChange}
+                                            className="modal-input"
+                                            placeholder="Ej: una esfera de cristal"
+                                        />
+                                    </div>
+                                )}
+                                {formState.componentsDf && (
+                                    <div className="modal-field">
+                                        <label className="font-semibold">Foco Divino</label>
+                                        <input
+                                            name="divineFocusDesc"
+                                            value={formState.divineFocusDesc}
+                                            onChange={handleChange}
+                                            className="modal-input"
+                                            placeholder="Ej: símbolo sagrado"
                                         />
                                     </div>
                                 )}

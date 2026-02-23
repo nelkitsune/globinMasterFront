@@ -356,6 +356,14 @@ export default function HomebrewCampaignSection({
                                                 <div className="font-semibold text-sm">
                                                     {spell.name}
                                                 </div>
+                                                <p className="text-xs muted">
+                                                    {[spell.schoolName || spell.schoolCode, spell.subschoolName]
+                                                        .filter(Boolean)
+                                                        .join(" · ") || "Sin escuela"}
+                                                </p>
+                                                {spell.target && (
+                                                    <p className="text-xs muted line-clamp-1">Objetivo: {spell.target}</p>
+                                                )}
                                                 <p className="text-xs muted line-clamp-2">
                                                     {spell.summary || spell.description || ""}
                                                 </p>
@@ -518,6 +526,14 @@ export default function HomebrewCampaignSection({
                                                                     <div className="text-sm font-semibold">
                                                                         {spell.name}
                                                                     </div>
+                                                                    <p className="text-xs muted">
+                                                                        {[spell.schoolName || spell.schoolCode, spell.subschoolName]
+                                                                            .filter(Boolean)
+                                                                            .join(" · ") || "Sin escuela"}
+                                                                    </p>
+                                                                    {spell.target && (
+                                                                        <p className="text-xs muted line-clamp-1">Objetivo: {spell.target}</p>
+                                                                    )}
                                                                     <p className="text-xs muted line-clamp-2">
                                                                         {spell.summary || spell.description || ""}
                                                                     </p>
@@ -626,6 +642,14 @@ export default function HomebrewCampaignSection({
                                                                     <div className="text-sm font-semibold">
                                                                         {spell.name}
                                                                     </div>
+                                                                    <p className="text-xs muted">
+                                                                        {[spell.schoolName || spell.schoolCode, spell.subschoolName]
+                                                                            .filter(Boolean)
+                                                                            .join(" · ") || "Sin escuela"}
+                                                                    </p>
+                                                                    {spell.target && (
+                                                                        <p className="text-xs muted line-clamp-1">Objetivo: {spell.target}</p>
+                                                                    )}
                                                                     <p className="text-xs muted line-clamp-2">
                                                                         {spell.summary || spell.description || ""}
                                                                     </p>

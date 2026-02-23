@@ -6,16 +6,31 @@ export interface Spell {
     originalName?: string;
     schoolCode?: string;
     schoolName?: string;
+    escuela?: string; // Nombre de backend en español
+    subschoolId?: number | null;
+    subschoolName?: string | null;
+    target?: string;
+    objetivo?: string; // Nombre de backend en español
     castingTime?: string;
+    tiempoIncantacion?: string; // Nombre de backend en español
     rangeText?: string;
+    rango?: string; // Nombre de backend en español
     areaText?: string;
+    area?: string; // Nombre de backend en español
     durationText?: string;
+    duracion?: string; // Nombre de backend en español
     savingThrow?: string;
+    salvacion?: string; // Nombre de backend en español
     spellResistance?: boolean;
+    resistenciaConjuros?: string | boolean; // Nombre de backend en español
     componentsV?: boolean;
     componentsS?: boolean;
     componentsM?: boolean;
+    componentsF?: boolean;
+    componentsDf?: boolean;
     materialDesc?: string;
+    focusDesc?: string;
+    divineFocusDesc?: string;
     description?: string;
     summary?: string;
     source?: string;
@@ -47,13 +62,21 @@ export interface SpellSchool {
     id?: number;
     name: string;
     code: string;
+    subschools?: SpellSubschool[];
+}
+
+export interface SpellSubschool {
+    id?: number;
+    name: string;
+    schoolId?: number;
 }
 
 
 
 
-export const getSpells = async (): Promise<Spell[]> => {
-    const response = await api.get('/magic/spells');
+export const getSpells = async (official: boolean = false): Promise<Spell[]> => {
+    const params = official ? { official: true } : {};
+    const response = await api.get('/magic/spells', { params });
     const data = response.data;
     return Array.isArray(data) ? data : (data?.content || data?.data || []);
 };

@@ -91,6 +91,9 @@ export default function SpellClassPage() {
                                                 const spellName = spell?.name || spell?.nombre || "Sin nombre";
                                                 const spellSummary = spell?.summary || spell?.descripcion || spell?.description;
                                                 const castingTime = spell?.castingTime || spell?.castingTime;
+                                                const schoolName = spell?.schoolName || spell?.schoolCode;
+                                                const subschoolName = spell?.subschoolName;
+                                                const target = spell?.target;
 
                                                 return (
                                                     <Link href={`/spells/${spellId}`} key={`${spellId}-${idx}`}>
@@ -104,12 +107,29 @@ export default function SpellClassPage() {
                                                             <h3 className="font-bold text-lg" style={{ color: "var(--olive-900)" }}>
                                                                 {spellName}
                                                             </h3>
+                                                            <div className="mt-2 flex flex-wrap gap-1">
+                                                                {schoolName && (
+                                                                    <span className="text-[11px] bg-blue-200 text-blue-900 px-2 py-1 rounded">
+                                                                        {schoolName}
+                                                                    </span>
+                                                                )}
+                                                                {subschoolName && (
+                                                                    <span className="text-[11px] bg-indigo-200 text-indigo-900 px-2 py-1 rounded">
+                                                                        {subschoolName}
+                                                                    </span>
+                                                                )}
+                                                            </div>
                                                             {spellSummary && (
                                                                 <p className="text-sm muted mt-2 line-clamp-2">{spellSummary}</p>
                                                             )}
                                                             {castingTime && (
                                                                 <p className="text-xs muted mt-2">
                                                                     <strong>Tiempo:</strong> {castingTime}
+                                                                </p>
+                                                            )}
+                                                            {target && (
+                                                                <p className="text-xs muted mt-1 line-clamp-1">
+                                                                    <strong>Objetivo:</strong> {target}
                                                                 </p>
                                                             )}
                                                         </div>

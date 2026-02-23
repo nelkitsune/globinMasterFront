@@ -28,14 +28,36 @@ export interface FeatAdminDTO {
 export interface SpellAdminDTO {
     id?: number;
     name: string;
+    originalName?: string;
     nivel: number;
     escuela: string;
+    schoolCode?: string;
+    subschoolId?: number | null;
     tiempoIncantacion: string;
+    castingTime?: string;
     rango: string;
+    rangeText?: string;
+    areaText?: string;
+    target?: string;
     componentes: string;
+    componentsV?: boolean;
+    componentsS?: boolean;
+    componentsM?: boolean;
+    componentsF?: boolean;
+    componentsDf?: boolean;
+    materialDesc?: string;
     duracion: string;
+    durationText?: string;
     descripcion: string;
+    description?: string;
+    summary?: string;
     clases?: string[];
+    classLevels?: Record<string, number>;
+    source?: string;
+    salvacion?: string;
+    savingThrow?: string;
+    resistenciaConjuros?: string;
+    spellResistance?: boolean;
 }
 
 export interface RuleAdminDTO {
