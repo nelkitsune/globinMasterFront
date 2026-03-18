@@ -13,8 +13,14 @@ export const listMyRules = async (): Promise<RuleResponse[]> => {
     return response.data;
 };
 
-export const listRules = async (): Promise<RuleResponse[]> => {
-    const response = await api.get<RuleResponse[]>(RULES_API);
+export const listRules = async (official: boolean = false): Promise<RuleResponse[]> => {
+    const params = official ? { official: true } : {};
+    const response = await api.get<RuleResponse[]>(RULES_API, { params });
+    return response.data;
+};
+
+export const createOfficialRule = async (req: RuleCreateRequest): Promise<RuleResponse> => {
+    const response = await api.post<RuleResponse>(`${RULES_API}/official`, req);
     return response.data;
 };
 

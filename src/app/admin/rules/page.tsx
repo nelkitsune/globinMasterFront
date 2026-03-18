@@ -17,33 +17,42 @@ const RULE_FIELDS: FormField[] = [
         maxLength: 100,
     },
     {
-        name: "categoria",
-        label: "Categoría",
+        name: "nombreOriginal",
+        label: "Nombre Original",
         type: "text",
-        placeholder: "Ej: Combate",
-        maxLength: 50,
+        placeholder: "Ej: Critical Hit Rule (opcional)",
+        maxLength: 200,
+    },
+    {
+        name: "categoria",
+        label: "Categoría / Libros",
+        type: "text",
+        placeholder: "Ej: Core, Advanced Player's Guide",
+        maxLength: 200,
     },
     {
         name: "descripcion",
-        label: "Descripción Breve",
+        label: "Descripción",
         type: "textarea",
         required: true,
-        placeholder: "Descripción corta de la regla...",
+        placeholder: "Descripción de la regla...",
     },
     {
         name: "contenido",
-        label: "Contenido Detallado",
-        type: "textarea",
-        required: true,
-        placeholder: "Explicación completa de la regla...",
+        label: "Páginas",
+        type: "text",
+        placeholder: "Ej: 5-6, 120-125",
+        maxLength: 100,
     },
 ];
 
 interface Rule {
     id?: number;
     nombre: string;
+    nombreOriginal?: string;
     categoria?: string;
     descripcion: string;
+    contenido?: string;
 }
 
 export default function AdminRulesPage() {
@@ -56,10 +65,18 @@ export default function AdminRulesPage() {
     const loadRules = async () => {
         try {
             setLoading(true);
-            // TODO: Reemplazar con endpoint real para obtener reglas (admin)
-            // const response = await api.get("/admin/rules");
-            // setRules(response.data);
-            setRules([]);
+            const { listRules } = await import("@/api/rulesApi");
+            const data = await listRules(true); // true = solo oficiales
+            // Mapear del formato backend al formato del componente
+            const mappedRules = data.map((rule: any) => ({
+                id: rule.id,
+                nombre: rule.name,
+                nombreOriginal: rule.originalName,
+                categoria: rule.books || rule.categoria || undefined,
+                descripcion: rule.description || rule.descripcion,
+                contenido: rule.pages || rule.contenido || undefined,
+            }));
+            setRules(mappedRules);
         } catch (err) {
             setError(handleAdminError(err));
         } finally {
@@ -171,7 +188,11 @@ export default function AdminRulesPage() {
                                     <tr key={rule.id} style={{ borderBottom: "1px solid var(--olive-200)" }}>
                                         <td className="px-4 py-3 font-semibold">{rule.nombre}</td>
                                         <td className="px-4 py-3 text-sm muted">{rule.categoria || "-"}</td>
-                                        <td className="px-4 py-3 text-sm">{rule.descripcion}</td>
+                                        <td className="px-4 py-3 text-sm">
+                                            {rule.descripcion?.length > 100
+                                                ? `${rule.descripcion.substring(0, 100)}...`
+                                                : rule.descripcion || "-"}
+                                        </td>
                                         <td className="px-4 py-3 text-center flex justify-center gap-2">
                                             <button
                                                 onClick={() => openEditModal(rule)}

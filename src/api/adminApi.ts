@@ -63,6 +63,7 @@ export interface SpellAdminDTO {
 export interface RuleAdminDTO {
     id?: number;
     nombre: string;
+    nombreOriginal?: string;
     descripcion: string;
     contenido?: string;
     categoria?: string;
@@ -126,17 +127,31 @@ export const adminApi = {
 
     // ===== RULES =====
     createRule: async (dto: RuleAdminDTO) => {
-        const res = await api.post("/admin/rules", dto);
+        const payload = {
+            name: dto.nombre,
+            originalName: dto.nombreOriginal || dto.nombre,
+            description: dto.descripcion,
+            pages: dto.contenido || undefined,
+            books: dto.categoria || undefined,
+        };
+        const res = await api.post("/rules/official", payload);
         return res.data;
     },
 
     updateRule: async (id: number, dto: RuleAdminDTO) => {
-        const res = await api.put(`/admin/rules/${id}`, dto);
+        const payload = {
+            name: dto.nombre,
+            originalName: dto.nombreOriginal || dto.nombre,
+            description: dto.descripcion,
+            pages: dto.contenido || undefined,
+            books: dto.categoria || undefined,
+        };
+        const res = await api.patch(`/rules/${id}`, payload);
         return res.data;
     },
 
     deleteRule: async (id: number) => {
-        await api.delete(`/admin/rules/${id}`);
+        await api.delete(`/rules/${id}`);
     },
 
     // ===== ANALYTICS/STATS (opcional) =====
