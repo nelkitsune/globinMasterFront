@@ -51,9 +51,11 @@ export default function NavBar() {
                         <div className={styles.navLinks}>
                             <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>Inicio</Link>
                             <Link href="/gestorDeIniciativa" onClick={() => setIsMobileMenuOpen(false)}>Gestor de Iniciativa</Link>
+                            <Link href="/spells" onClick={() => setIsMobileMenuOpen(false)}>Magia</Link>
+                            <Link href="/feats" onClick={() => setIsMobileMenuOpen(false)}>Dotes</Link>
+                            <Link href="/rules" onClick={() => setIsMobileMenuOpen(false)}>Reglas</Link>
                             {isAuthenticated && (
                                 <>
-                                    <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>Dashboard</Link>
                                     <Link href="/miPerfil" onClick={() => setIsMobileMenuOpen(false)}>Mi Perfil</Link>
                                     {isAdmin && (
                                         <Link href="/admin" onClick={() => setIsMobileMenuOpen(false)} style={{ color: "#f59e0b", fontWeight: "bold" }}>
