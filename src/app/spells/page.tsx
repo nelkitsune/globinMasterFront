@@ -1,24 +1,31 @@
 "use client"
 
-import React from 'react'
 import { useEffect, useState } from "react";
-import { getSpellClasses, SpellClass, Spell, getSpellLevelsByClassId } from "@/api/spellsApi";
-import Link from 'next/link';
+import { getSpellClasses, SpellClass } from "@/api/spellsApi";
+import { SpellClassCard } from "@/components/Spells/SpellClassCard";
 
 
 export default function SpellListPage() {
 
   const [spellClasses, setSpellClasses] = useState<SpellClass[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    setLoading(true);
+    setError(null);
+
     getSpellClasses()
       .then((data) => setSpellClasses(data))
-      .catch((err) => console.error("Error cargando clases de conjuros:", err))
+      .catch((err) => {
+        console.error("Error cargando clases de conjuros:", err);
+        setError(err?.message || "Error cargando clases de conjuros");
+      })
       .finally(() => setLoading(false));
   }, []);
 
   if (loading) return <p className="p-4 text-center">Cargando clases...</p>;
+  if (error) return <p className="p-4 text-center text-red-500">{error}</p>;
 
   return (
     <div className="container">
@@ -31,21 +38,7 @@ export default function SpellListPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
         {spellClasses.map((spellClass) => (
-          <Link href={`/spells/class/${spellClass.id}`} key={spellClass.id}>
-            <div
-              className="p-6 rounded-2xl transition-transform hover:shadow-lg hover:scale-105"
-              style={{
-                backgroundColor: "var(--card)",
-                border: "2px solid var(--olive-500)",
-                cursor: "pointer",
-              }}
-            >
-              <h3 className="text-xl font-bold" style={{ color: "var(--olive-900)" }}>
-                {spellClass.name}
-              </h3>
-              <p className="text-sm muted mt-2">Toca para ver conjuros disponibles</p>
-            </div>
-          </Link>
+          <SpellClassCard key={spellClass.id ?? spellClass.code} spellClass={spellClass} />
         ))}
       </div>
     </div>

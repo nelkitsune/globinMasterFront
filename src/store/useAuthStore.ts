@@ -128,21 +128,13 @@ export const useAuthStore = create<AuthState>((set) => ({
         const inferredRoleFromUser = extractRoleFromUnknown(user);
         if (inferredRoleFromUser) {
           user.role = inferredRoleFromUser;
-          console.log("[AUTH][hydrate] role inferido desde user local:", inferredRoleFromUser);
         }
       }
 
       if (jwtRole && (!user || !user.role)) {
         if (!user) user = {};
         user.role = jwtRole;
-        console.log("[AUTH][hydrate] role extraído del JWT:", decodedJWT?.role, "=>", jwtRole);
       }
-
-      console.log("[AUTH][hydrate] snapshot inicial", {
-        hasToken: !!token,
-        localStorageRole: user?.role,
-        jwtRole,
-      });
 
       set({
         token,
@@ -156,7 +148,6 @@ export const useAuthStore = create<AuthState>((set) => ({
         authEndpoints.getCurrentUser()
           .then((currentUser) => {
             currentUser.role = extractRoleFromUnknown(currentUser);
-            console.log("User completo desde /auth/me en hydrate:", currentUser);
             // Agregar role del JWT si está disponible
             if (jwtRole && !currentUser.role) {
               currentUser.role = jwtRole;
@@ -166,11 +157,8 @@ export const useAuthStore = create<AuthState>((set) => ({
               const inferredRole = extractRoleFromUnknown(currentUser);
               if (inferredRole) {
                 currentUser.role = inferredRole;
-                console.log("[AUTH][hydrate] role inferido fallback:", inferredRole);
               }
             }
-
-            console.log("[AUTH][hydrate] role final desde backend:", currentUser.role);
             set({ user: currentUser });
             localStorage.setItem("user", JSON.stringify(currentUser));
           })
@@ -215,22 +203,17 @@ export const useAuthStore = create<AuthState>((set) => ({
       if (user && !user.role) {
         user.role = extractRoleFromUnknown(user);
       }
-      console.log("JWT decodificado:", decodedJWT);
-      console.log("[AUTH][login] role backend:", response.user?.role, "| role jwt:", decodedJWT?.role, "=>", jwtRole);
 
       if (jwtRole) {
         // Si el JWT trae role, agregarlo al user
         if (!user) user = {};
         user.role = jwtRole;
-        console.log("Role extraído del JWT:", decodedJWT?.role, "=>", jwtRole);
       } else if (user && !user.role) {
         // Si no está en JWT, intentar obtener de /auth/me
         try {
-          console.log("No hay role en JWT, obteniendo datos de /auth/me");
           const fullUser = await authEndpoints.getCurrentUser();
           fullUser.role = extractRoleFromUnknown(fullUser);
           user = fullUser;
-          console.log("User completo desde /auth/me:", user);
         } catch (err) {
           const status = (err as any)?.response?.status;
           if (status !== 401 && status !== 403) {
@@ -242,7 +225,6 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       if (user) {
         user.role = extractRoleFromUnknown(user);
-        console.log("[AUTH][login] role final guardado:", user.role);
         localStorage.setItem("user", JSON.stringify(user));
       }
 
@@ -294,22 +276,17 @@ export const useAuthStore = create<AuthState>((set) => ({
       if (user && !user.role) {
         user.role = extractRoleFromUnknown(user);
       }
-      console.log("JWT decodificado en register:", decodedJWT);
-      console.log("[AUTH][register] role backend:", response.user?.role, "| role jwt:", decodedJWT?.role, "=>", jwtRole);
 
       if (jwtRole) {
         // Si el JWT trae role, agregarlo al user
         if (!user) user = {};
         user.role = jwtRole;
-        console.log("Role extraído del JWT:", decodedJWT?.role, "=>", jwtRole);
       } else if (!user || !user.role) {
         // Si no está en JWT, intentar obtener de /auth/me
         try {
-          console.log("No hay role en JWT/response, obteniendo datos de /auth/me");
           const currentUser = await authEndpoints.getCurrentUser();
           currentUser.role = extractRoleFromUnknown(currentUser);
           user = currentUser;
-          console.log("User completo desde /auth/me:", user);
         } catch (err) {
           const status = (err as any)?.response?.status;
           if (status !== 401 && status !== 403) {
@@ -321,7 +298,6 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       if (user) {
         user.role = extractRoleFromUnknown(user);
-        console.log("[AUTH][register] role final guardado:", user.role);
         localStorage.setItem("user", JSON.stringify(user));
       }
 

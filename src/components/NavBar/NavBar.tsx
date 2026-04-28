@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import styles from "./NavBar.module.css";
@@ -12,16 +12,6 @@ export default function NavBar() {
     const router = useRouter();
     const normalizedRole = String(user?.role || '').trim().toUpperCase();
     const isAdmin = normalizedRole === 'ADMIN';
-
-    useEffect(() => {
-        console.log('[NAVBAR] auth state', {
-            isAuthenticated,
-            username: user?.username,
-            roleRaw: user?.role,
-            roleNormalized: normalizedRole,
-            showAdminLink: isAuthenticated && isAdmin,
-        });
-    }, [isAuthenticated, user?.username, user?.role, normalizedRole, isAdmin]);
 
     const handleLogout = () => {
         logout();
@@ -51,9 +41,11 @@ export default function NavBar() {
                         <div className={styles.navLinks}>
                             <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>Inicio</Link>
                             <Link href="/gestorDeIniciativa" onClick={() => setIsMobileMenuOpen(false)}>Gestor de Iniciativa</Link>
+                            <Link href="/spells" onClick={() => setIsMobileMenuOpen(false)}>Magia</Link>
+                            <Link href="/feats" onClick={() => setIsMobileMenuOpen(false)}>Dotes</Link>
+                            <Link href="/rules" onClick={() => setIsMobileMenuOpen(false)}>Reglas</Link>
                             {isAuthenticated && (
                                 <>
-                                    <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>Dashboard</Link>
                                     <Link href="/miPerfil" onClick={() => setIsMobileMenuOpen(false)}>Mi Perfil</Link>
                                     {isAdmin && (
                                         <Link href="/admin" onClick={() => setIsMobileMenuOpen(false)} style={{ color: "#f59e0b", fontWeight: "bold" }}>

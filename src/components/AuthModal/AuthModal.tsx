@@ -23,7 +23,6 @@ export default function AuthModal({ mode = "login", onClose }: Props) {
     }
 
     const handleSubmit = (e: React.FormEvent) => {
-        console.log("webas")
         e.preventDefault();
         const validation =
             tab === "login" ? validateLoginForm({ email: formData.email, password: formData.password })
@@ -36,7 +35,6 @@ export default function AuthModal({ mode = "login", onClose }: Props) {
         setErrors(errs);
 
         if (Object.keys(errs).length === 0) {
-            console.log("form válido", tab, formData);
             onClose();
         }
     };

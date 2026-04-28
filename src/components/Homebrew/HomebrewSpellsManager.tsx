@@ -141,10 +141,6 @@ export default function HomebrewSpellsManager() {
         setError(null);
         try {
             const data = await listMyHomebrewSpells();
-            console.log("Conjuros cargados del servidor:", data);
-            if (data && data.length > 0) {
-                console.log("Primer conjuro (estructura completa):", JSON.stringify(data[0], null, 2));
-            }
             setItems(data);
         } catch (err: any) {
             setError(
@@ -179,7 +175,6 @@ export default function HomebrewSpellsManager() {
         setSchoolsLoading(true);
         try {
             const data = await getSpellSchools();
-            console.log("Escuelas de magia cargadas:", data);
             setSpellSchools(data || []);
         } catch (err: any) {
             console.error("Error cargando escuelas de magia:", err);
@@ -284,7 +279,6 @@ export default function HomebrewSpellsManager() {
 
     const handleSubmit = async () => {
         const payload = toSpellPayload(formState, editingSpell?.id);
-        console.log("Enviando payload al servidor:", JSON.stringify(payload, null, 2));
         if (
             !payload.name ||
             !payload.schoolCode ||
@@ -300,12 +294,10 @@ export default function HomebrewSpellsManager() {
         setLoading(true);
         try {
             if (editingSpell?.id) {
-                const updated = await updateSpell(editingSpell.id, payload);
-                console.log("Respuesta del servidor (update):", JSON.stringify(updated, null, 2));
+                await updateSpell(editingSpell.id, payload);
                 await loadSpells();
             } else {
-                const created = await createSpell(payload);
-                console.log("Respuesta del servidor (create):", JSON.stringify(created, null, 2));
+                await createSpell(payload);
                 await loadSpells();
             }
             closeForm();

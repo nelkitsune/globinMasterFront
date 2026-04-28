@@ -11,7 +11,6 @@ export const BotoneraDeIniciativa = () => {
 
   const [showModal, setShowModal] = useState(false);
 
-  // --- NUEVO: detectar si el botón de "siguiente turno" está visible ---
   const nextTurnBtnRef = useRef<HTMLButtonElement | null>(null);
   const [showFloatingNext, setShowFloatingNext] = useState(false);
 
@@ -21,7 +20,6 @@ export const BotoneraDeIniciativa = () => {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        // si NO se ve el botón normal, mostramos el flotante
         setShowFloatingNext(!entry.isIntersecting);
       },
       { threshold: 0.01 }
@@ -52,7 +50,6 @@ export const BotoneraDeIniciativa = () => {
         </div>
 
         <div className="flex items-center justify-center">
-          {/* Botón normal (el que está arriba) */}
           <button
             ref={nextTurnBtnRef}
             className="group relative w-full h-full min-h-[120px] bg-gradient-to-br from-[var(--olive-500)] to-[var(--olive-700)] hover:from-[var(--olive-700)] hover:to-[var(--olive-900)] text-white font-bold text-xl rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95"

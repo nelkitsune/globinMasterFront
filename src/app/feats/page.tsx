@@ -6,14 +6,24 @@ import { getFeats, Feat, FeatType } from "@/api/featsApi";
 import '../globals.css'
 import Link from 'next/link';
 
-const FEAT_TYPES: FeatType[] = ["COMBATE", "GENERAL", "RACIAL", "MAGIA", "METAMAGIA"];
+const FEAT_TYPES: FeatType[] = [
+  "ARTISTICAS",
+  "COOPERATIVAS",
+  "AGALLAS",
+  "COMBATE",
+  "ESTILO",
+  "CREACION_DE_OBJETOS",
+  "CRITICO",
+  "METAMAGICAS",
+  "RACIAL",
+];
 
 export default function FeatsListPage() {
   const [feats, setFeats] = useState<Feat[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const [pageSize] = useState(20);
+  const [pageSize] = useState(4);
   const [selectedTypes, setSelectedTypes] = useState<FeatType[]>([]);
   const [error, setError] = useState<string | null>(null);
 

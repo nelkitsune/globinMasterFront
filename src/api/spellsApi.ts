@@ -32,6 +32,7 @@ export interface Spell {
     focusDesc?: string;
     divineFocusDesc?: string;
     description?: string;
+    descripcion?: string;
     summary?: string;
     source?: string;
     classLevels?: Record<string, number>;
