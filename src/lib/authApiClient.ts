@@ -30,9 +30,6 @@ authApi.interceptors.request.use(
       }
     }
 
-    console.log("📤 Request:", config.method?.toUpperCase(), config.url);
-    console.log("📦 Request body:", config.data);
-    console.log("📋 Headers:", config.headers);
     return config;
   },
   (error) => Promise.reject(error)

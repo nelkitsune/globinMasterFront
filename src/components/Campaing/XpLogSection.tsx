@@ -26,7 +26,7 @@ export default function XpLogSection({ campaignId, userId, isOwner, members = []
         selectedParticipants: [] as number[],
     });
 
-    // Load logs on mount
+
     useEffect(() => {
         fetchLogs(campaignId, 0);
         setCampaignId(campaignId);
@@ -73,7 +73,7 @@ export default function XpLogSection({ campaignId, userId, isOwner, members = []
 
         setFormLoading(true);
         try {
-            // Build participantsText from selected character IDs
+
             const participantNames = formData.selectedParticipants
                 .map(id => campaignCharacters.find(c => c.characterId === id)?.characterName)
                 .filter(Boolean) as string[];
@@ -86,7 +86,7 @@ export default function XpLogSection({ campaignId, userId, isOwner, members = []
 
             await createLog(campaignId, userId, payload);
 
-            // Reset form
+
             setFormData({
                 xpGained: '',
                 description: '',

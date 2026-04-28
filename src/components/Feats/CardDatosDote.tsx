@@ -22,12 +22,10 @@ export default function CardDatosDote({
   className,
 }: CardDatosDoteProps) {
   const renderTexto = (p: PrereqUI) => {
-    // Normalizar tipo en mayúsculas por si acaso
     const tipo = (p.tipo ?? "").toString().toUpperCase();
 
     switch (tipo) {
       case "ABILITY_SCORE":
-        // atributo puede venir como STR/DEX o nombre completo
         return `${p.atributo ?? "Atributo"} ${p.valor ?? ""}`.trim();
 
       case "BAB":
@@ -46,7 +44,6 @@ export default function CardDatosDote({
         return `${p.nombre ?? "Skill"} ${p.valor ?? ""}`.trim();
 
       case "FEAT":
-        // si el mapeo ya resolvió el nombre, mostrarlo; si no, usar featId como fallback
         if (p.nombre) return p.nombre;
         if (p.featId) return `Dote #${p.featId}`;
         return "Dote";
@@ -62,7 +59,6 @@ export default function CardDatosDote({
         return p.nombre ?? tipo;
 
       default:
-        // fallback genérico
         return p.nombre ?? tipo ?? "—";
     }
   };

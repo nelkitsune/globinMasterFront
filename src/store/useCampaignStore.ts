@@ -201,7 +201,7 @@ export const useCampaignStore = create<CampaignState>((set, get) => ({
         try {
             await removeMemberFromCampaign(campaignId, userId);
             set((state) => ({
-                members: state.members.filter((m) => m.id !== userId),
+                members: state.members.filter((m) => m.userId !== userId),
                 loading: false,
             }));
             return true;

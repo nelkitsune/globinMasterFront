@@ -12,18 +12,27 @@ export interface PaginatedResponse<T> {
   last: boolean;
 }
 
-// ==== Enums de tipos de dotes ====
-export type FeatType = "COMBATE" | "RACIAL" | "GENERAL" | "MAGIA" | "METAMAGIA";
+// ==== Enums de tipos de dotes (alineados con backend) ====
+export type FeatType =
+  | "ARTISTICAS"
+  | "COOPERATIVAS"
+  | "AGALLAS"
+  | "COMBATE"
+  | "ESTILO"
+  | "CREACION_DE_OBJETOS"
+  | "CRITICO"
+  | "METAMAGICAS"
+  | "RACIAL";
 
 // ==== Modelo UI preexistente ====
 
 export interface PrereqUI {
-  tipo: string;        // 'ABILITY_SCORE' | 'BAB' | 'FEAT' | etc.
-  atributo?: string;   // 'STR', 'DEX', ...
-  valor?: number;      // 13, 1, ...
-  nombre?: string;     // nombre de la feat si tipo === 'FEAT'
-  href?: string;       // link a la feat si tipo === 'FEAT'
-  featId?: number;     // id de la feat referenciada (útil para búsquedas)
+  tipo: string;
+  atributo?: string;
+  valor?: number;
+  nombre?: string;
+  href?: string;
+  featId?: number;
 }
 
 export interface Feat {
@@ -35,9 +44,9 @@ export interface Feat {
   benefit: string;
   special?: string;
   source?: string;
-  tipo: string[];            // <-- AJUSTADO A ARRAY
-  normal?: string;           // <-- Texto normal opcional
-  prereqGroups?: PrereqUI[]; // <-- UI "aplanada"
+  tipo: string[];
+  normal?: string;
+  prereqGroups?: PrereqUI[];
   ownerUserId?: number | null;
   ownerUsername?: string | null;
   ownerUserCode?: string | null;
@@ -64,9 +73,9 @@ export type PrereqKind =
 
 export interface ApiPrereqCondition {
   kind: PrereqKind;
-  target: string | null;    // texto/identificador dependiente del kind (ej: nombre de clase/raza/spell/tag)
-  intValue: number | null;  // valores numéricos (niveles, valores de habilidad, ranks, BAB, etc.)
-  featId: number | null;    // para FEAT
+  target: string | null;
+  intValue: number | null;
+  featId: number | null;
 }
 
 export interface ApiPrereqGroup {
@@ -112,14 +121,8 @@ export interface ApiFeat {
   } | null;
 }
 
-// ==== Helpers de mapeo ====
-
-/** Construye una ruta interna a la feat (ajusta si tu router usa otro path). */
 const buildFeatHref = (id: number) => `/feats/${id}`;
 
-/** Mapea UNA condición de la API a un prerequisito UI "aplanado". 
- *  idToName es opcional y si existe se usa para rellenar el nombre de FEAT.
- */
 const mapConditionToUI = (c: ApiPrereqCondition, idToName?: Record<number, string>): PrereqUI => {
   switch (c.kind) {
     case "ABILITY_SCORE":
@@ -170,7 +173,6 @@ const mapConditionToUI = (c: ApiPrereqCondition, idToName?: Record<number, strin
       };
 
     default:
-      // fallback genérico
       return {
         tipo: c.kind ?? "UNKNOWN",
         nombre: c.target ?? undefined,
@@ -178,15 +180,11 @@ const mapConditionToUI = (c: ApiPrereqCondition, idToName?: Record<number, strin
       };
   }
 };
-
-/** Aplana TODOS los grupos de prereqs en una sola lista (conserva el orden por groupIndex). */
 const flattenPrereqs = (groups: ApiPrereqGroup[] | undefined, idToName?: Record<number, string>): PrereqUI[] => {
   if (!groups || groups.length === 0) return [];
   const ordered = [...groups].sort((a, b) => a.groupIndex - b.groupIndex);
   return ordered.flatMap(g => (g.conditions ?? []).map(c => mapConditionToUI(c, idToName)));
 };
-
-/** Mapea una ApiFeat a tu Feat de UI. idToName opcional para resolver nombres de FEAT referenciadas. */
 export const mapApiFeatToUI = (f: ApiFeat, idToName?: Record<number, string>): Feat => ({
   id: f.id,
   name: f.name,
@@ -205,34 +203,91 @@ export const mapApiFeatToUI = (f: ApiFeat, idToName?: Record<number, string>): F
 });
 
 // ==== Lecturas (devuelven UI) ====
-
-// Obtener feats paginadas con filtros
 export const getFeats = async (
   page: number = 0,
   size: number = 20,
-  types?: FeatType[]
+  types?: FeatType[],
+  official: boolean = true
 ): Promise<PaginatedResponse<Feat>> => {
-  const params = new URLSearchParams();
-  params.append("page", String(page));
-  params.append("size", String(Math.min(size, 100))); // máximo 100
-  params.append("sort", "name,asc");
+  const buildParams = (safeSize: number): URLSearchParams => {
+    const params = new URLSearchParams();
+    params.append("page", String(page));
+    params.append("size", String(safeSize));
+    params.append("sort", "name,asc");
+    params.append("official", String(official));
 
-  if (types && types.length > 0) {
-    params.append("tipos", types.join(","));
+    const selectedTypes = (types ?? []).filter(Boolean);
+    if (selectedTypes.length === 1) {
+      params.append("tipo", selectedTypes[0]);
+    } else if (selectedTypes.length > 1) {
+      params.append("tipos", selectedTypes.join(","));
+    }
+
+    return params;
+  };
+
+  const normalizeSize = (value: number): number => {
+    if (!Number.isFinite(value)) return 20;
+    const rounded = Math.floor(value);
+    return Math.min(Math.max(rounded, 1), 100);
+  };
+
+  const extractMaxSizeFrom400 = (error: unknown): number | null => {
+    const data = (error as { response?: { status?: number; data?: unknown } })?.response;
+    if (!data || data.status !== 400) return null;
+
+    const payload = data.data;
+    const text =
+      typeof payload === "string"
+        ? payload
+        : payload && typeof payload === "object"
+          ? JSON.stringify(payload)
+          : "";
+
+    if (!text) return null;
+
+    const match = text.match(/(less than or equal to|max(?:imum)?|<=)\s*(\d{1,3})/i);
+    if (!match) return null;
+
+    const parsed = Number(match[2]);
+    if (!Number.isFinite(parsed) || parsed < 1) return null;
+    return Math.min(parsed, 100);
+  };
+
+  const initialSize = normalizeSize(size);
+  const attempted = new Set<number>();
+  const candidateSizes = [initialSize, 4, 1].map(normalizeSize);
+
+  let lastError: unknown;
+
+  for (const candidate of candidateSizes) {
+    if (attempted.has(candidate)) continue;
+    attempted.add(candidate);
+
+    try {
+      const params = buildParams(candidate);
+      const res = await api.get<PaginatedResponse<ApiFeat>>(`/feats?${params.toString()}`);
+
+      const idToName: Record<number, string> = Object.fromEntries(
+        (res.data.content ?? []).map(f => [f.id, f.name])
+      );
+
+      return {
+        ...res.data,
+        content: (res.data.content ?? []).map(f => mapApiFeatToUI(f, idToName)),
+      };
+    } catch (error) {
+      lastError = error;
+      const maxFromBackend = extractMaxSizeFrom400(error);
+      if (maxFromBackend != null && !attempted.has(maxFromBackend)) {
+        candidateSizes.push(maxFromBackend);
+      }
+    }
   }
 
-  const res = await api.get<PaginatedResponse<ApiFeat>>(`/feats?${params}`);
-  const idToName: Record<number, string> = Object.fromEntries(
-    (res.data.content ?? []).map(f => [f.id, f.name])
-  );
-
-  return {
-    ...res.data,
-    content: (res.data.content ?? []).map(f => mapApiFeatToUI(f, idToName)),
-  };
+  throw lastError;
 };
 
-// Helper: pide nombres de feats por ids (usa peticiones individuales)
 const fetchFeatNamesByIds = async (ids: number[]): Promise<Record<number, string>> => {
   const uniq = Array.from(new Set(ids.filter(Boolean)));
   if (uniq.length === 0) return {};
@@ -252,20 +307,15 @@ const fetchFeatNamesByIds = async (ids: number[]): Promise<Record<number, string
 export const getFeatById = async (id: number): Promise<Feat> => {
   const res = await api.get<ApiFeat>(`/feats/${id}`);
   const apiFeat = res.data;
-  // extraer featIds referenciados en sus prereqGroups
   const referencedIds: number[] = (apiFeat.prereqGroups ?? [])
     .flatMap(g => (g.conditions ?? []).map(c => c.featId).filter((v): v is number => v != null));
   const idToName = await fetchFeatNamesByIds(referencedIds);
   return mapApiFeatToUI(apiFeat, idToName);
 };
 
-// ==== Escrituras ====
-// Si tu backend espera el formato ApiFeat (con grupos y condiciones),
-// necesitás un mapeo inverso desde la UI a la API.
-// Te dejo el "shape" básico y un TODO para implementarlo según tu formulario de edición.
+
 
 const mapUIToApiFeat = (feat: Feat): ApiFeat => {
-  // TODO: reconstruir prereqGroups a partir de feat.prereqGroups (UI aplanado).
   return {
     id: feat.id ?? 0,
     name: feat.name,
@@ -276,7 +326,7 @@ const mapUIToApiFeat = (feat: Feat): ApiFeat => {
     special: feat.special ?? null,
     source: feat.source ?? null,
     tipo: feat.tipo ?? [],
-    prereqGroups: [], // <-- RECONSTRUIR si tu backend lo requiere al crear/editar
+    prereqGroups: [],
   };
 };
 

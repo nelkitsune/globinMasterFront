@@ -29,7 +29,6 @@ export const CrearCampaniaModal = ({ onClose, onSuccess }: CrearCampaniaModalPro
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    console.log('Submitting form with data:', formData);
     e.preventDefault();
 
     if (!formData.name.trim()) {
@@ -45,7 +44,6 @@ export const CrearCampaniaModal = ({ onClose, onSuccess }: CrearCampaniaModalPro
     };
 
     const campaign = await createCampaign(payload);
-    console.log('Created campaign:', campaign);
 
     if (campaign) {
       setCreatedCampaignId(campaign.id);

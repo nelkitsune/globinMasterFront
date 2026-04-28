@@ -39,7 +39,6 @@ export const CreateCharacterModal: React.FC<CreateCharacterModalProps> = ({
             setFormData((prev) => ({
                 ...prev,
                 [name]: checked,
-                // Si es NPC, eliminar userId
                 ...(name === "isNpc" && checked ? { userId: null } : {}),
             }));
         } else if (type === "number") {
@@ -86,7 +85,6 @@ export const CreateCharacterModal: React.FC<CreateCharacterModalProps> = ({
         const newCharacter = await create(payload);
 
         if (newCharacter && campaignId) {
-            // Si se proporciona campaignId, agregar el personaje a la campaña
             await addToCampaign(newCharacter.id, campaignId);
         }
 

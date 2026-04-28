@@ -3,6 +3,11 @@
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { AdminGuard } from "@/components/AdminGuard";
 import { DeleteConfirmationModal } from "@/components/Campaing/DeleteConfirmationModal";
+import AdminSectionHeader from "@/components/Admin/AdminSectionHeader";
+import AdminErrorBanner from "@/components/Admin/AdminErrorBanner";
+import SpellsTable from "@/components/Admin/spells/SpellsTable";
+import SpellFormModal from "@/components/Admin/spells/SpellFormModal";
+import { ClassLevel, SpellFormState, emptySpellForm } from "@/components/Admin/spells/spellFormTypes";
 import {
     Spell,
     SpellClass,
@@ -15,70 +20,6 @@ import {
     getSpellSchools,
     SpellSchool,
 } from "@/api/spellsApi";
-import Link from "next/link";
-
-interface ClassLevel {
-    classCode: string;
-    level: number;
-}
-
-interface SpellFormState {
-    name: string;
-    originalName: string;
-    castingTime: string;
-    rangeText: string;
-    areaText: string;
-    durationText: string;
-    schoolCode: string;
-    subschoolId: string;
-    target: string;
-    savingThrow: boolean;
-    savingThrowType: string;
-    spellResistance: boolean;
-    componentsV: boolean;
-    componentsS: boolean;
-    componentsM: boolean;
-    componentsF: boolean;
-    componentsDf: boolean;
-    materialDesc: string;
-    focusDesc: string;
-    divineFocusDesc: string;
-    source: string;
-    description: string;
-    summary: string;
-    classLevels: ClassLevel[];
-    selectedClassCode: string;
-    selectedLevel: string;
-}
-
-const emptySpellForm: SpellFormState = {
-    name: "",
-    originalName: "",
-    castingTime: "",
-    rangeText: "",
-    areaText: "",
-    durationText: "",
-    schoolCode: "",
-    subschoolId: "",
-    target: "",
-    savingThrow: false,
-    savingThrowType: "",
-    spellResistance: false,
-    componentsV: false,
-    componentsS: false,
-    componentsM: false,
-    componentsF: false,
-    componentsDf: false,
-    materialDesc: "",
-    focusDesc: "",
-    divineFocusDesc: "",
-    source: "",
-    description: "",
-    summary: "",
-    classLevels: [],
-    selectedClassCode: "",
-    selectedLevel: "",
-};
 
 const toSpellPayload = (form: SpellFormState, id?: number): Spell => {
     const subschoolId = form.subschoolId ? Number(form.subschoolId) : null;
@@ -141,7 +82,6 @@ export default function AdminSpellsPage() {
         setLoading(true);
         setError(null);
         try {
-            // Cargar solo conjuros oficiales (sin owner)
             const data = await getSpells(true);
             setItems(data);
         } catch (err: any) {
@@ -258,7 +198,6 @@ export default function AdminSpellsPage() {
         if (isNaN(level) || level < 0 || level > 9) {
             return;
         }
-        // Evitar duplicados
         if (formState.classLevels.some(cl => cl.classCode === formState.selectedClassCode)) {
             return;
         }
@@ -336,34 +275,16 @@ export default function AdminSpellsPage() {
     return (
         <AdminGuard>
             <div className="container">
-                <div className="mb-8 flex justify-between items-center">
-                    <div>
-                        <h1 className="brand text-4xl font-bold mb-2" style={{ color: "var(--olive-900)" }}>
-                            Gestionar Conjuros Oficiales
-                        </h1>
-                        <p className="muted text-lg">Crear y editar conjuros para toda la aplicación</p>
-                    </div>
-                    <div className="flex gap-2">
-                        <Link href="/admin" className="px-4 py-2 rounded-md font-semibold" style={{ backgroundColor: "var(--olive-200)", color: "var(--olive-900)" }}>
-                            ← Volver
-                        </Link>
-                        <button
-                            onClick={openCreate}
-                            className="px-4 py-2 rounded-md font-semibold transition-colors"
-                            style={{
-                                backgroundColor: "var(--olive-600)",
-                                color: "white",
-                            }}
-                        >
-                            + Nuevo Conjuro
-                        </button>
-                    </div>
-                </div>
+                <AdminSectionHeader
+                    title="Gestionar Conjuros Oficiales"
+                    subtitle="Crear y editar conjuros para toda la aplicacion"
+                    backHref="/admin"
+                    createLabel="+ Nuevo Conjuro"
+                    onCreate={openCreate}
+                />
 
                 {error && (
-                    <div className="p-4 mb-4 rounded-lg bg-red-100 text-red-700 border border-red-300">
-                        {error}
-                    </div>
+                    <AdminErrorBanner message={error} />
                 )}
 
                 {loading ? (
@@ -371,480 +292,30 @@ export default function AdminSpellsPage() {
                 ) : items.length === 0 ? (
                     <p className="text-center py-8 muted">No hay conjuros oficiales. Crea uno para empezar.</p>
                 ) : (
-                    <div className="overflow-x-auto rounded-lg border" style={{ borderColor: "var(--olive-300)" }}>
-                        <table className="w-full">
-                            <thead style={{ backgroundColor: "var(--olive-100)" }}>
-                                <tr>
-                                    <th className="px-4 py-3 text-left font-semibold">Nombre</th>
-                                    <th className="px-4 py-3 text-left font-semibold">Escuela</th>
-                                    <th className="px-4 py-3 text-left font-semibold">Subescuela</th>
-                                    <th className="px-4 py-3 text-left font-semibold">Objetivo</th>
-                                    <th className="px-4 py-3 text-left font-semibold">Clases</th>
-                                    <th className="px-4 py-3 text-center font-semibold">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {items.map((spell) => (
-                                    <tr key={spell.id} style={{ borderBottom: "1px solid var(--olive-200)" }}>
-                                        <td className="px-4 py-3 font-semibold">{spell.name}</td>
-                                        <td className="px-4 py-3 text-sm">{spell.schoolName || spell.schoolCode || spell.escuela || 'N/A'}</td>
-                                        <td className="px-4 py-3 text-sm">{spell.subschoolName || 'N/A'}</td>
-                                        <td className="px-4 py-3 text-sm">{spell.objetivo || spell.target || 'N/A'}</td>
-                                        <td className="px-4 py-3 text-sm">
-                                            {spell.classLevels && Object.keys(spell.classLevels).length > 0
-                                                ? Object.keys(spell.classLevels).join(", ")
-                                                : "N/A"}
-                                        </td>
-                                        <td className="px-4 py-3 text-center flex justify-center gap-2">
-                                            <button
-                                                onClick={() => openEdit(spell)}
-                                                className="px-3 py-1 text-sm rounded-md font-semibold transition-colors"
-                                                style={{
-                                                    backgroundColor: "var(--olive-400)",
-                                                    color: "white",
-                                                }}
-                                            >
-                                                Editar
-                                            </button>
-                                            <button
-                                                onClick={() => setDeleteTarget(spell)}
-                                                className="px-3 py-1 text-sm rounded-md font-semibold transition-colors"
-                                                style={{
-                                                    backgroundColor: "#ef4444",
-                                                    color: "white",
-                                                }}
-                                            >
-                                                Eliminar
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                    <SpellsTable
+                        items={items}
+                        onEdit={openEdit}
+                        onDelete={setDeleteTarget}
+                    />
                 )}
             </div>
 
-            {/* Formulario Modal */}
-            {isFormOpen && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto" style={{ backgroundColor: "var(--card)" }}>
-                        <div className="sticky top-0 border-b p-6 flex justify-between items-center" style={{ backgroundColor: "var(--olive-500)", color: "white", borderColor: "var(--olive-700)" }}>
-                            <h2 className="text-2xl font-bold">{editingSpell ? "Editar Conjuro" : "Crear Conjuro"}</h2>
-                            <button onClick={closeForm} className="text-white hover:opacity-80 text-2xl font-bold">×</button>
-                        </div>
-
-                        <div className="p-6 space-y-4">
-                            {/* Nombre */}
-                            <div>
-                                <label className="block text-sm font-semibold mb-2" style={{ color: "var(--olive-900)" }}>Nombre *</label>
-                                <input
-                                    type="text"
-                                    name="name"
-                                    value={formState.name}
-                                    onChange={handleChange}
-                                    placeholder="Ej: Bola de Fuego"
-                                    className="w-full px-3 py-2 border rounded-md"
-                                    style={{ borderColor: "var(--olive-500)", backgroundColor: "var(--olive-100)" }}
-                                />
-                            </div>
-
-                            {/* Nombre Original */}
-                            <div>
-                                <label className="block text-sm font-semibold mb-2" style={{ color: "var(--olive-900)" }}>Nombre Original</label>
-                                <input
-                                    type="text"
-                                    name="originalName"
-                                    value={formState.originalName}
-                                    onChange={handleChange}
-                                    placeholder="Ej: Fireball (opcional)"
-                                    className="w-full px-3 py-2 border rounded-md"
-                                    style={{ borderColor: "var(--olive-500)", backgroundColor: "var(--olive-100)" }}
-                                />
-                            </div>
-
-                            {/* Escuela */}
-                            <div>
-                                <label className="block text-sm font-semibold mb-2" style={{ color: "var(--olive-900)" }}>Escuela de Magia *</label>
-                                <select
-                                    name="schoolCode"
-                                    value={formState.schoolCode}
-                                    onChange={handleChange}
-                                    className="w-full px-3 py-2 border rounded-md"
-                                    style={{ borderColor: "var(--olive-500)", backgroundColor: "var(--olive-100)" }}
-                                >
-                                    <option value="">Selecciona una escuela</option>
-                                    {spellSchools.map((school) => (
-                                        <option key={school.id} value={school.code}>
-                                            {school.name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            {/* Subescuela */}
-                            <div>
-                                <label className="block text-sm font-semibold mb-2" style={{ color: "var(--olive-900)" }}>Subescuela</label>
-                                <select
-                                    name="subschoolId"
-                                    value={formState.subschoolId}
-                                    onChange={handleChange}
-                                    className="w-full px-3 py-2 border rounded-md"
-                                    style={{ borderColor: "var(--olive-500)", backgroundColor: "var(--olive-100)" }}
-                                    disabled={!formState.schoolCode || availableSubschools.length === 0}
-                                >
-                                    <option value="">Sin subescuela</option>
-                                    {availableSubschools.map((subschool) => (
-                                        <option key={subschool.id} value={subschool.id}>
-                                            {subschool.name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            {/* Tiempo de Lanzamiento */}
-                            <div>
-                                <label className="block text-sm font-semibold mb-2" style={{ color: "var(--olive-900)" }}>Tiempo de Lanzamiento *</label>
-                                <input
-                                    type="text"
-                                    name="castingTime"
-                                    value={formState.castingTime}
-                                    onChange={handleChange}
-                                    placeholder="Ej: 1 acción"
-                                    className="w-full px-3 py-2 border rounded-md"
-                                    style={{ borderColor: "var(--olive-500)", backgroundColor: "var(--olive-100)" }}
-                                />
-                            </div>
-
-                            {/* Rango */}
-                            <div>
-                                <label className="block text-sm font-semibold mb-2" style={{ color: "var(--olive-900)" }}>Rango *</label>
-                                <input
-                                    type="text"
-                                    name="rangeText"
-                                    value={formState.rangeText}
-                                    onChange={handleChange}
-                                    placeholder="Ej: 60 pies"
-                                    className="w-full px-3 py-2 border rounded-md"
-                                    style={{ borderColor: "var(--olive-500)", backgroundColor: "var(--olive-100)" }}
-                                />
-                            </div>
-
-                            {/* Área */}
-                            <div>
-                                <label className="block text-sm font-semibold mb-2" style={{ color: "var(--olive-900)" }}>Área</label>
-                                <input
-                                    type="text"
-                                    name="areaText"
-                                    value={formState.areaText}
-                                    onChange={handleChange}
-                                    placeholder="Ej: Esfera de 20 pies"
-                                    className="w-full px-3 py-2 border rounded-md"
-                                    style={{ borderColor: "var(--olive-500)", backgroundColor: "var(--olive-100)" }}
-                                />
-                            </div>
-
-                            {/* Objetivo */}
-                            <div>
-                                <label className="block text-sm font-semibold mb-2" style={{ color: "var(--olive-900)" }}>Objetivo</label>
-                                <input
-                                    type="text"
-                                    name="target"
-                                    value={formState.target}
-                                    onChange={handleChange}
-                                    placeholder="Ej: una criatura"
-                                    className="w-full px-3 py-2 border rounded-md"
-                                    style={{ borderColor: "var(--olive-500)", backgroundColor: "var(--olive-100)" }}
-                                />
-                            </div>
-
-                            {/* Duración */}
-                            <div>
-                                <label className="block text-sm font-semibold mb-2" style={{ color: "var(--olive-900)" }}>Duración *</label>
-                                <input
-                                    type="text"
-                                    name="durationText"
-                                    value={formState.durationText}
-                                    onChange={handleChange}
-                                    placeholder="Ej: Instantánea"
-                                    className="w-full px-3 py-2 border rounded-md"
-                                    style={{ borderColor: "var(--olive-500)", backgroundColor: "var(--olive-100)" }}
-                                />
-                            </div>
-
-                            {/* Componentes */}
-                            <div className="border-t pt-4" style={{ borderColor: "var(--olive-300)" }}>
-                                <label className="block text-sm font-semibold mb-3" style={{ color: "var(--olive-900)" }}>Componentes</label>
-                                <div className="space-y-2">
-                                    <label className="flex items-center">
-                                        <input
-                                            type="checkbox"
-                                            name="componentsV"
-                                            checked={formState.componentsV}
-                                            onChange={handleCheckbox}
-                                            className="mr-2"
-                                        />
-                                        <span style={{ color: "var(--olive-900)" }}>Verbal (V)</span>
-                                    </label>
-                                    <label className="flex items-center">
-                                        <input
-                                            type="checkbox"
-                                            name="componentsS"
-                                            checked={formState.componentsS}
-                                            onChange={handleCheckbox}
-                                            className="mr-2"
-                                        />
-                                        <span style={{ color: "var(--olive-900)" }}>Somático (S)</span>
-                                    </label>
-                                    <label className="flex items-center">
-                                        <input
-                                            type="checkbox"
-                                            name="componentsM"
-                                            checked={formState.componentsM}
-                                            onChange={handleCheckbox}
-                                            className="mr-2"
-                                        />
-                                        <span style={{ color: "var(--olive-900)" }}>Material (M)</span>
-                                    </label>
-                                    <label className="flex items-center">
-                                        <input
-                                            type="checkbox"
-                                            name="componentsF"
-                                            checked={formState.componentsF}
-                                            onChange={handleCheckbox}
-                                            className="mr-2"
-                                        />
-                                        <span style={{ color: "var(--olive-900)" }}>Foco (F)</span>
-                                    </label>
-                                    <label className="flex items-center">
-                                        <input
-                                            type="checkbox"
-                                            name="componentsDf"
-                                            checked={formState.componentsDf}
-                                            onChange={handleCheckbox}
-                                            className="mr-2"
-                                        />
-                                        <span style={{ color: "var(--olive-900)" }}>Foco Divino (DF)</span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            {/* Material */}
-                            {formState.componentsM && (
-                                <div>
-                                    <label className="block text-sm font-semibold mb-2" style={{ color: "var(--olive-900)" }}>Descripción Material</label>
-                                    <input
-                                        type="text"
-                                        name="materialDesc"
-                                        value={formState.materialDesc}
-                                        onChange={handleChange}
-                                        placeholder="Ej: una pluma de fénix"
-                                        className="w-full px-3 py-2 border rounded-md"
-                                        style={{ borderColor: "var(--olive-500)", backgroundColor: "var(--olive-100)" }}
-                                    />
-                                </div>
-                            )}
-
-                            {/* Focus */}
-                            {formState.componentsF && (
-                                <div>
-                                    <label className="block text-sm font-semibold mb-2" style={{ color: "var(--olive-900)" }}>Descripción de Foco</label>
-                                    <input
-                                        type="text"
-                                        name="focusDesc"
-                                        value={formState.focusDesc}
-                                        onChange={handleChange}
-                                        placeholder="Ej: una esfera de cristal"
-                                        className="w-full px-3 py-2 border rounded-md"
-                                        style={{ borderColor: "var(--olive-500)", backgroundColor: "var(--olive-100)" }}
-                                    />
-                                </div>
-                            )}
-
-                            {/* Divine Focus */}
-                            {formState.componentsDf && (
-                                <div>
-                                    <label className="block text-sm font-semibold mb-2" style={{ color: "var(--olive-900)" }}>Descripción de Foco Divino</label>
-                                    <input
-                                        type="text"
-                                        name="divineFocusDesc"
-                                        value={formState.divineFocusDesc}
-                                        onChange={handleChange}
-                                        placeholder="Ej: símbolo sagrado"
-                                        className="w-full px-3 py-2 border rounded-md"
-                                        style={{ borderColor: "var(--olive-500)", backgroundColor: "var(--olive-100)" }}
-                                    />
-                                </div>
-                            )}
-
-                            {/* Tirada de Salvación */}
-                            <div className="border-t pt-4" style={{ borderColor: "var(--olive-300)" }}>
-                                <label className="flex items-center">
-                                    <input
-                                        type="checkbox"
-                                        name="savingThrow"
-                                        checked={formState.savingThrow}
-                                        onChange={handleCheckbox}
-                                        className="mr-2"
-                                    />
-                                    <span className="text-sm font-semibold" style={{ color: "var(--olive-900)" }}>Requiere Tirada de Salvación</span>
-                                </label>
-                            </div>
-
-                            {formState.savingThrow && (
-                                <div>
-                                    <label className="block text-sm font-semibold mb-2" style={{ color: "var(--olive-900)" }}>Tipo de Salvación *</label>
-                                    <input
-                                        type="text"
-                                        name="savingThrowType"
-                                        value={formState.savingThrowType}
-                                        onChange={handleChange}
-                                        placeholder="Ej: Destreza (mitad daño)"
-                                        className="w-full px-3 py-2 border rounded-md"
-                                        style={{ borderColor: "var(--olive-500)", backgroundColor: "var(--olive-100)" }}
-                                    />
-                                </div>
-                            )}
-
-                            {/* Resistencia a Magia */}
-                            <div>
-                                <label className="flex items-center">
-                                    <input
-                                        type="checkbox"
-                                        name="spellResistance"
-                                        checked={formState.spellResistance}
-                                        onChange={handleCheckbox}
-                                        className="mr-2"
-                                    />
-                                    <span className="text-sm font-semibold" style={{ color: "var(--olive-900)" }}>Puede ser resistido por Resistencia de Magia</span>
-                                </label>
-                            </div>
-
-                            {/* Resumen */}
-                            <div>
-                                <label className="block text-sm font-semibold mb-2" style={{ color: "var(--olive-900)" }}>Resumen Breve</label>
-                                <textarea
-                                    name="summary"
-                                    value={formState.summary}
-                                    onChange={handleChange}
-                                    placeholder="Breve descripción del efecto..."
-                                    rows={2}
-                                    className="w-full px-3 py-2 border rounded-md"
-                                    style={{ borderColor: "var(--olive-500)", backgroundColor: "var(--olive-100)" }}
-                                />
-                            </div>
-
-                            {/* Descripción Completa */}
-                            <div>
-                                <label className="block text-sm font-semibold mb-2" style={{ color: "var(--olive-900)" }}>Descripción Completa *</label>
-                                <textarea
-                                    name="description"
-                                    value={formState.description}
-                                    onChange={handleChange}
-                                    placeholder="Descripción detallada del conjuro..."
-                                    rows={4}
-                                    className="w-full px-3 py-2 border rounded-md"
-                                    style={{ borderColor: "var(--olive-500)", backgroundColor: "var(--olive-100)" }}
-                                />
-                            </div>
-
-                            {/* Source (Libro y Página) */}
-                            <div>
-                                <label className="block text-sm font-semibold mb-2" style={{ color: "var(--olive-900)" }}>Fuente (Libro y Página)</label>
-                                <input
-                                    type="text"
-                                    name="source"
-                                    value={formState.source || ""}
-                                    onChange={handleChange}
-                                    placeholder="Ej: Manual del Jugador, pág. 215"
-                                    className="w-full px-3 py-2 border rounded-md"
-                                    style={{ borderColor: "var(--olive-500)", backgroundColor: "var(--olive-100)" }}
-                                />
-                            </div>
-
-                            {/* Clases que pueden lanzar el conjuro */}
-                            <div className="border-t pt-4" style={{ borderColor: "var(--olive-300)" }}>
-                                <label className="block text-sm font-semibold mb-3" style={{ color: "var(--olive-900)" }}>Clases que pueden lanzar este conjuro *</label>
-
-                                <div className="flex gap-2 mb-4">
-                                    <select
-                                        value={formState.selectedClassCode}
-                                        onChange={(e) => setFormState(prev => ({ ...prev, selectedClassCode: e.target.value }))}
-                                        className="flex-1 px-3 py-2 border rounded-md"
-                                        style={{ borderColor: "var(--olive-500)", backgroundColor: "var(--olive-100)" }}
-                                    >
-                                        <option value="">Selecciona una clase</option>
-                                        {spellClasses.map((cls) => (
-                                            <option key={cls.id} value={cls.code}>
-                                                {cls.name}
-                                            </option>
-                                        ))}
-                                    </select>
-
-                                    <select
-                                        value={formState.selectedLevel}
-                                        onChange={(e) => setFormState(prev => ({ ...prev, selectedLevel: e.target.value }))}
-                                        className="w-24 px-3 py-2 border rounded-md"
-                                        style={{ borderColor: "var(--olive-500)", backgroundColor: "var(--olive-100)" }}
-                                    >
-                                        <option value="">Nivel</option>
-                                        {Array.from({ length: 10 }, (_, i) => (
-                                            <option key={i} value={i}>
-                                                Nivel {i}
-                                            </option>
-                                        ))}
-                                    </select>
-
-                                    <button
-                                        onClick={addClassLevel}
-                                        className="px-4 py-2 rounded-md font-semibold text-white"
-                                        style={{ backgroundColor: "var(--olive-700)" }}
-                                    >
-                                        Agregar
-                                    </button>
-                                </div>
-
-                                {formState.classLevels.length > 0 && (
-                                    <div className="space-y-2">
-                                        {formState.classLevels.map((cl) => (
-                                            <div key={cl.classCode} className="flex justify-between items-center p-2 rounded" style={{ backgroundColor: "var(--olive-100)" }}>
-                                                <span className="text-sm font-semibold" style={{ color: "var(--olive-900)" }}>
-                                                    {spellClasses.find(c => c.code === cl.classCode)?.name || cl.classCode} - Nivel {cl.level}
-                                                </span>
-                                                <button
-                                                    onClick={() => removeClassLevel(cl.classCode)}
-                                                    className="font-semibold"
-                                                    style={{ color: "var(--olive-900)" }}
-                                                >
-                                                    Eliminar
-                                                </button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="sticky bottom-0 border-t p-6 flex justify-end gap-2" style={{ backgroundColor: "var(--card)", borderColor: "var(--olive-300)" }}>
-                            <button
-                                onClick={closeForm}
-                                className="px-4 py-2 rounded-md font-semibold"
-                                style={{ backgroundColor: "var(--olive-300)", color: "var(--olive-900)" }}
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                onClick={handleSubmit}
-                                disabled={loading}
-                                className="px-4 py-2 rounded-md font-semibold text-white"
-                                style={{ backgroundColor: "var(--olive-700)" }}
-                            >
-                                {editingSpell ? "Guardar Cambios" : "Crear Conjuro"}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <SpellFormModal
+                isOpen={isFormOpen}
+                editing={Boolean(editingSpell)}
+                loading={loading}
+                formState={formState}
+                spellClasses={spellClasses}
+                spellSchools={spellSchools}
+                availableSubschools={availableSubschools}
+                onClose={closeForm}
+                onChange={handleChange}
+                onCheckbox={handleCheckbox}
+                onSetFormState={setFormState}
+                onAddClassLevel={addClassLevel}
+                onRemoveClassLevel={removeClassLevel}
+                onSubmit={handleSubmit}
+            />
 
             {/* Modal de Confirmación de Eliminación */}
             {deleteTarget && (
